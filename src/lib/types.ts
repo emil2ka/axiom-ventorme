@@ -5,20 +5,17 @@ export type CategoryId =
   | 'people'
   | 'organization';
 
-export type CompassMode = 'hero' | 'selection' | 'result' | 'final';
-
-export type CompassSceneProps = {
-  mode: CompassMode;
-  selectedCategories: CategoryId[];
-  activeCategory?: CategoryId;
-  reducedMotion: boolean;
-  onInterestSelect?: (category: CategoryId) => void;
-  className?: string;
-};
-
 export type GoalId = 'professions' | 'try' | 'nextstep';
 
-export type JourneyStep = 'idle' | 'q1' | 'q2' | 'q3' | 'results';
+export type Phase = 'initial' | 'questions' | 'result' | 'demo';
+
+export type JourneyStep = 'q1' | 'q2' | 'q3';
+
+export type JourneyMode = 'first' | 'edit';
+
+export type ResultMode = 'personal' | 'demo';
+
+export type MotionMode = 'full' | 'reduced' | 'static';
 
 export type InterestOption = {
   id: string;
@@ -74,13 +71,34 @@ export type RecommendationResult = {
   skipped: boolean;
 };
 
+export type ExplainedItem = {
+  id: string;
+  matched: CategoryId[];
+  reason: string;
+};
+
 export type JourneyState = {
+  version: 2;
+  phase: Phase;
   step: JourneyStep;
-  answers: Answers;
+  mode: JourneyMode;
+  draft: Answers;
+  committed: Answers;
   resultIds: string[] | null;
+  resultMode: ResultMode | null;
   mixed: boolean;
-  skipped?: boolean;
   openedDirectionId: string | null;
+  requestedCategory: CategoryId | null;
+  previewCategory: CategoryId | null;
+};
+
+export type SceneState = {
+  phase: Phase;
+  resultMode: ResultMode | null;
+  activeCategories: CategoryId[];
+  previewCategory: CategoryId | null;
+  routeProgress: number;
+  motion: MotionMode;
 };
 
 export type EventName =
@@ -91,4 +109,6 @@ export type EventName =
   | 'direction_open'
   | 'registration_click'
   | 'faq_open'
-  | 'motion_reduced';
+  | 'features_tab_open'
+  | 'motion_reduced'
+  | 'hero_branch';

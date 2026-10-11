@@ -2,65 +2,138 @@ import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import QuestionPanel from '../src/components/QuestionPanel';
 import DirectionResults from '../src/components/DirectionResults';
-import SelectionSummary from '../src/components/SelectionSummary';
-import { recommendResults } from '../src/lib/recommend';
+import FutureAtlas from '../src/components/scene/FutureAtlas';
+import FinalScene from '../src/components/FinalScene';
 import { questions } from '../src/data/questions';
+import type { JourneyState } from '../src/lib/types';
 
 const noop = () => {};
 const ref = { current: null };
 
-describe('Подборка: SSR-смоук', () => {
-  it('QuestionPanel q1 показывает все варианты интересов', () => {
+const baseJourney: JourneyState = {
+  version: 2,
+  phase: 'questions',
+  step: 'q1',
+  mode: 'first',
+  draft: { interestIds: [], projectId: null, goalId: null },
+  committed: { interestIds: [], projectId: null, goalId: null },
+  resultIds: null,
+  resultMode: null,
+  mixed: false,
+  openedDirectionId: null,
+  requestedCategory: null,
+  previewCategory: null,
+};
+
+const resultJourney: JourneyState = {
+  ...baseJourney,
+  phase: 'result',
+  step: 'q3',
+  draft: { interestIds: ['interest-tech'], projectId: 'project-page', goalId: 'try' },
+  committed: { interestIds: ['interest-tech'], projectId: 'project-page', goalId: 'try' },
+  resultIds: ['ux-ui', 'web-dev', 'game-dev'],
+  resultMode: 'personal',
+};
+
+const demoJourney: JourneyState = {
+  ...baseJourney,
+  phase: 'demo',
+  resultIds: ['ux-ui', 'data-analysis', 'event-org'],
+  resultMode: 'demo',
+};
+
+describe('Редизайн: SSR-смоук', () => {
+  it('QuestionPanel q1 показывает все пять интересов и лимит', () => {
     const html = renderToStaticMarkup(
       <QuestionPanel
-        step="q1"
-        answers={{ interestIds: [], projectId: null, goalId: null }}
-        limitMessage={false}
+        journey={baseJourney}
         busy={false}
+        limitMessage={false}
         headingRef={ref}
         onToggleInterest={noop}
         onSelectProject={noop}
         onSelectGoal={noop}
         onNext={noop}
         onBack={noop}
+        onCancelEdit={noop}
+        onClearRequested={noop}
       />,
     );
     for (const option of questions.q1.options) {
       expect(html).toContain(option.label);
     }
+    expect(html).toContain('Выбери до двух интересов');
     expect(html).toContain('Вопрос 1 из 3');
-    expect(html).toContain('Назад');
-    expect(html).toContain('Далее');
   });
 
-  it('DirectionResults показывает три карточки, пояснение и CTA', () => {
-    const result = recommendResults({
-      interestIds: ['interest-tech', 'interest-create'],
-      projectId: 'project-data',
-      goalId: 'try',
-    });
+  it('QuestionPanel в режиме edit показывает баннер и отмену', () => {
+    const html = renderToStaticMarkup(
+      <QuestionPanel
+        journey={{ ...resultJourney, phase: 'questions', mode: 'edit' }}
+        busy={false}
+        limitMessage={false}
+        headingRef={ref}
+        onToggleInterest={noop}
+        onSelectProject={noop}
+        onSelectGoal={noop}
+        onNext={noop}
+        onBack={noop}
+        onCancelEdit={noop}
+        onClearRequested={noop}
+      />,
+    );
+    expect(html).toContain('Редактирование ответов');
+    expect(html).toContain('Отменить изменения');
+  });
+
+  it('DirectionResults: причина, один preview-акцент и CTA', () => {
     const html = renderToStaticMarkup(
       <DirectionResults
-        result={result}
-        goalId="try"
+        journey={resultJourney}
         headingRef={ref}
         registerTrigger={() => () => {}}
         onOpen={noop}
-        onChangeAnswers={noop}
+        onEdit={noop}
         onRestart={noop}
-        onAnswerQuestions={noop}
+        onAnswerFromDemo={noop}
       />,
     );
-    expect(html).toContain('Вот с чего можно начать');
-    expect(html).toContain('Это подборка для знакомства по твоим ответам');
+    expect(html).toContain('Связано с твоим интересом');
+    expect(html).toContain('Что можно делать:');
+    expect(html.match(/Подробнее/g)?.length).toBe(3);
     expect(html).toContain('Зарегистрироваться в Ventorme');
-    expect(html.match(/Посмотреть подробнее/g)?.length).toBe(3);
-    expect(html).toContain('У тебя получилось несколько интересов');
+    expect(html).toContain('Изменить ответы');
+    expect(html).toContain('Начать заново');
   });
 
-  it('SelectionSummary без ответов показывает пустое состояние', () => {
-    const html = renderToStaticMarkup(<SelectionSummary />);
-    expect(html).toContain('Пока не выбрано');
-    expect(html).toContain('#interests');
+  it('DirectionResults: demo помечен как примеры', () => {
+    const html = renderToStaticMarkup(
+      <DirectionResults
+        journey={demoJourney}
+        headingRef={ref}
+        registerTrigger={() => () => {}}
+        onOpen={noop}
+        onEdit={noop}
+        onRestart={noop}
+        onAnswerFromDemo={noop}
+      />,
+    );
+    expect(html).toContain('Примеры');
+    expect(html).toContain('Ответить на вопросы');
+    expect(html).not.toContain('Связано с твоим интересом');
+  });
+
+  it('FutureAtlas SSR: poster и пять кнопок-веток без WebGL', () => {
+    const html = renderToStaticMarkup(<FutureAtlas />);
+    expect(html).toContain('vp-atlas-poster');
+    expect(html.match(/class="vp-atlas-label"/g)?.length).toBe(5);
+    expect(html).toContain('выбрать интерес');
+  });
+
+  it('FinalScene SSR: маршрут, заголовок и CTA', () => {
+    const html = renderToStaticMarkup(<FinalScene />);
+    expect(html).toContain('Не нужно решать всё сегодня');
+    expect(html).toContain('Зарегистрироваться в Ventorme');
+    expect(html).toContain('vp-final-ribbon');
   });
 });

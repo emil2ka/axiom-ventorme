@@ -6,7 +6,7 @@ import InterestExperience from '../components/InterestExperience.tsx';
 import VentormeFeatures from '../components/VentormeFeatures.astro';
 import RegistrationSteps from '../components/RegistrationSteps.astro';
 import Faq from '../components/Faq.astro';
-import FinalScene from '../components/FinalScene.astro';
+import FinalScene from '../components/FinalScene.tsx';
 import SiteFooter from '../components/SiteFooter.astro';
 ---
 
@@ -17,11 +17,11 @@ import SiteFooter from '../components/SiteFooter.astro';
   <SiteHeader />
   <main id="main">
     <Hero />
-    <InterestExperience client:visible uiVersion="1" />
+    <InterestExperience client:visible />
     <VentormeFeatures />
     <RegistrationSteps />
     <Faq />
-    <FinalScene />
+    <FinalScene client:visible />
   </main>
   <SiteFooter />
 </BaseLayout>

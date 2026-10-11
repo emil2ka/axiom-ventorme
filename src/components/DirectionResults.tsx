@@ -1,20 +1,19 @@
 import type { CSSProperties, RefObject } from 'react';
-import type { Direction, DirectionSymbol, GoalId, RecommendationResult } from '../lib/types';
-import { CATEGORY_COLORS, CATEGORY_LABELS } from '../data/categories';
-import { directionById } from '../data/directions';
+import type { Direction, DirectionSymbol, JourneyState } from '../lib/types';
+import { directionById, generalPicks } from '../data/directions';
+import { explainResults } from '../lib/recommend';
 import { registrationUrl } from '../config/campaign';
 import { track } from '../lib/events';
 import './interest/interest.css';
 
 type DirectionResultsProps = {
-  result: RecommendationResult;
-  goalId: GoalId | null;
+  journey: JourneyState;
   headingRef: RefObject<HTMLHeadingElement | null>;
   registerTrigger: (id: string) => (element: HTMLButtonElement | null) => void;
   onOpen: (id: string) => void;
-  onChangeAnswers: () => void;
+  onEdit: () => void;
   onRestart: () => void;
-  onAnswerQuestions: () => void;
+  onAnswerFromDemo: () => void;
 };
 
 function SymbolGlyph({ symbol }: { symbol: DirectionSymbol }) {
@@ -107,107 +106,28 @@ function SymbolGlyph({ symbol }: { symbol: DirectionSymbol }) {
   }
 }
 
-function DirectionCard({
-  direction,
-  index,
-  goalId,
-  registerTrigger,
-  onOpen,
-}: {
-  direction: Direction;
-  index: number;
-  goalId: GoalId | null;
-  registerTrigger: (id: string) => (element: HTMLButtonElement | null) => void;
-  onOpen: (id: string) => void;
-}) {
-  const color = CATEGORY_COLORS[direction.categories[0]];
-  const emphasisClass =
-    goalId === 'try'
-      ? ' vp-direction-card--emphasis-try'
-      : goalId === 'nextstep'
-        ? ' vp-direction-card--emphasis-next'
-        : '';
-  const className = `vp-direction-card${index === 0 ? ' vp-direction-card--lead' : ''}${emphasisClass}`;
-
-  const tryBlock = (
-    <div className="vp-direction-try" key="try">
-      <span className="vp-direction-label">Попробуй сейчас</span>
-      {direction.tryNow}
-    </div>
-  );
-  const nextBlock = (
-    <div className="vp-direction-next" key="next">
-      <span className="vp-direction-label">Следующий шаг</span>
-      {direction.nextStep}
-    </div>
-  );
-  const tasksBlock = (
-    <div key="tasks">
-      <span className="vp-direction-label">Что можно делать</span>
-      <ul className="vp-direction-tasks">
-        {direction.tasks.map((task) => (
-          <li key={task}>{task}</li>
-        ))}
-      </ul>
-    </div>
-  );
-
-  const blocks =
-    goalId === 'try'
-      ? [tryBlock, tasksBlock, nextBlock]
-      : goalId === 'nextstep'
-        ? [nextBlock, tasksBlock, tryBlock]
-        : [tasksBlock, tryBlock, nextBlock];
-
-  return (
-    <article className={className} style={{ '--dir-color': color } as CSSProperties}>
-      <div className="vp-direction-top">
-        <span className="vp-direction-symbol">
-          <SymbolGlyph symbol={direction.symbol} />
-        </span>
-        <h4 className="vp-direction-title">{direction.title}</h4>
-      </div>
-      <div className="vp-direction-chips">
-        {direction.categories.map((category) => (
-          <span
-            key={category}
-            className="vp-direction-chip"
-            style={{ '--chip-color': CATEGORY_COLORS[category] } as CSSProperties}
-          >
-            <span className="vp-direction-chip-dot" aria-hidden="true" />
-            {CATEGORY_LABELS[category]}
-          </span>
-        ))}
-      </div>
-      <p className="vp-direction-summary">{direction.summary}</p>
-      {blocks}
-      <div className="vp-direction-actions">
-        <button
-          type="button"
-          className="btn btn--secondary btn--sm"
-          ref={registerTrigger(direction.id)}
-          onClick={() => onOpen(direction.id)}
-        >
-          Посмотреть подробнее
-        </button>
-      </div>
-    </article>
-  );
-}
-
 export default function DirectionResults({
-  result,
-  goalId,
+  journey,
   headingRef,
   registerTrigger,
   onOpen,
-  onChangeAnswers,
+  onEdit,
   onRestart,
-  onAnswerQuestions,
+  onAnswerFromDemo,
 }: DirectionResultsProps) {
-  const picked = result.directionIds
+  const isDemo = journey.phase === 'demo' || journey.resultMode === 'demo';
+  const ids = isDemo ? generalPicks : journey.resultIds ?? [];
+  const directions = ids
     .map((id) => directionById(id))
     .filter((direction): direction is Direction => direction !== null);
+  const explanations = isDemo
+    ? null
+    : explainResults(journey.committed, {
+        directionIds: ids,
+        mixed: journey.mixed,
+        topCategories: [],
+        skipped: false,
+      });
 
   return (
     <div className="vp-interest-step">
@@ -215,13 +135,18 @@ export default function DirectionResults({
         Вот с чего можно начать
       </h3>
 
-      {result.skipped ? (
+      {isDemo ? (
         <>
           <p className="vp-results-note">
-            Это примеры направлений для знакомства. Ответь на вопросы, чтобы собрать свою подборку.
+            Это примеры направлений для знакомства. Ответь на вопросы, чтобы собрать свою
+            подборку.
           </p>
-          <div className="vp-results-controls">
-            <button type="button" className="btn btn--secondary btn--sm" onClick={onAnswerQuestions}>
+          <div className="vp-results-actions">
+            <button
+              type="button"
+              className="btn btn--secondary btn--sm"
+              onClick={onAnswerFromDemo}
+            >
               Ответить на вопросы
             </button>
           </div>
@@ -231,7 +156,7 @@ export default function DirectionResults({
           <p className="vp-results-note">
             По твоим интересам мы выбрали несколько направлений для знакомства
           </p>
-          {result.mixed ? (
+          {journey.mixed ? (
             <p className="vp-results-mixed">
               У тебя получилось несколько интересов — можно начать с любого
             </p>
@@ -240,33 +165,62 @@ export default function DirectionResults({
       )}
 
       <div className="vp-direction-grid">
-        {picked.map((direction, index) => (
-          <DirectionCard
-            key={direction.id}
-            direction={direction}
-            index={index}
-            goalId={goalId}
-            registerTrigger={registerTrigger}
-            onOpen={onOpen}
-          />
-        ))}
+        {directions.map((direction, index) => {
+          const reason = isDemo
+            ? 'Пример направления для знакомства'
+            : explanations?.find((item) => item.id === direction.id)?.reason ??
+              'Вариант для знакомства';
+          return (
+            <article
+              key={direction.id}
+              className={`vp-direction-card${index === 0 ? ' vp-direction-card--lead' : ''}`}
+              style={{ '--dir-color': `var(--cat-${direction.categories[0]})` } as CSSProperties}
+            >
+              <div className="vp-direction-top">
+                <span className="vp-direction-symbol" style={{ color: 'var(--silver)' }}>
+                  <SymbolGlyph symbol={direction.symbol} />
+                </span>
+                <h4 className="vp-direction-title">{direction.title}</h4>
+                {isDemo ? <span className="vp-direction-badge">Примеры</span> : null}
+              </div>
+              <p className="vp-direction-reason">{reason}</p>
+              <p className="vp-direction-preview">
+                <strong>Что можно делать:</strong> {direction.tasks[0]}
+              </p>
+              <div className="vp-direction-actions">
+                <button
+                  type="button"
+                  className="btn btn--secondary btn--sm"
+                  ref={registerTrigger(direction.id)}
+                  onClick={() => onOpen(direction.id)}
+                >
+                  Подробнее
+                </button>
+              </div>
+            </article>
+          );
+        })}
       </div>
 
       <p className="vp-results-explainer">
-        Это подборка для знакомства по твоим ответам. Она не заменяет профориентационный тест.
+        {isDemo
+          ? 'Это примеры направлений. Они не заменяют профориентационный тест.'
+          : 'Это подборка для знакомства по твоим ответам. Она не заменяет профориентационный тест.'}
       </p>
 
-      <div className="vp-results-controls">
-        <span className="vp-results-controls-text">
-          Можно изменить ответы или посмотреть другие направления
-        </span>
-        <button type="button" className="btn btn--secondary btn--sm" onClick={onChangeAnswers}>
-          Изменить ответы
-        </button>
-        <button type="button" className="btn btn--ghost" onClick={onRestart}>
-          Начать заново
-        </button>
-      </div>
+      {!isDemo ? (
+        <div className="vp-results-actions">
+          <span className="vp-results-actions-note">
+            Можно изменить ответы или начать знакомство заново
+          </span>
+          <button type="button" className="btn btn--secondary btn--sm" onClick={onEdit}>
+            Изменить ответы
+          </button>
+          <button type="button" className="btn btn--ghost" onClick={onRestart}>
+            Начать заново
+          </button>
+        </div>
+      ) : null}
 
       <div className="vp-results-cta">
         <a

@@ -1,7 +1,7 @@
-import type { Answers, CategoryId, RecommendationResult } from './types';
-import { CATEGORY_ORDER } from '../data/categories';
+import type { Answers, CategoryId, ExplainedItem, RecommendationResult } from './types';
+import { CATEGORY_LABELS, CATEGORY_ORDER } from '../data/categories';
 import { categoryOfInterest, categoryOfProject } from '../data/questions';
-import { directions, generalPicks } from '../data/directions';
+import { directionById, directions, generalPicks } from '../data/directions';
 
 export function categoryScores(answers: Answers): Record<CategoryId, number> {
   const scores: Record<CategoryId, number> = {
@@ -20,6 +20,11 @@ export function categoryScores(answers: Answers): Record<CategoryId, number> {
     if (category) scores[category] += 2;
   }
   return scores;
+}
+
+export function selectedCategories(answers: Answers): CategoryId[] {
+  const scores = categoryScores(answers);
+  return CATEGORY_ORDER.filter((category) => scores[category] > 0);
 }
 
 export function recommendResults(answers: Answers): RecommendationResult {
@@ -68,4 +73,21 @@ export function recommendResults(answers: Answers): RecommendationResult {
     topCategories,
     skipped: false,
   };
+}
+
+export function explainResults(answers: Answers, result: RecommendationResult): ExplainedItem[] {
+  const selected = selectedCategories(answers);
+  return result.directionIds.map((id) => {
+    const direction = directionById(id);
+    const matched = direction
+      ? direction.categories.filter((category) => selected.includes(category))
+      : [];
+    const reason =
+      matched.length > 0
+        ? `Связано с твоим интересом: ${matched
+            .map((category) => CATEGORY_LABELS[category].toLowerCase())
+            .join(' и ')}`
+        : 'Добавили как дополнительный вариант для знакомства';
+    return { id, matched, reason };
+  });
 }

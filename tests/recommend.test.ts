@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { recommendResults } from '../src/lib/recommend';
+import { explainResults, recommendResults, selectedCategories } from '../src/lib/recommend';
 import { questions } from '../src/data/questions';
 import { directions, generalPicks } from '../src/data/directions';
 import type { Answers, GoalId } from '../src/lib/types';
@@ -107,5 +107,29 @@ describe('recommendResults', () => {
     expect(Object.keys(result).sort()).toEqual(
       ['directionIds', 'mixed', 'skipped', 'topCategories'].sort(),
     );
+  });
+
+  it('причины результата строятся по реальным совпадениям категорий', () => {
+    const answers: Answers = {
+      interestIds: ['interest-tech', 'interest-create'],
+      projectId: 'project-data',
+      goalId: 'professions',
+    };
+    const result = recommendResults(answers);
+    const items = explainResults(answers, result);
+    expect(items).toHaveLength(3);
+    for (const item of items) {
+      expect(item.matched.length).toBeGreaterThan(0);
+      expect(item.reason.startsWith('Связано с твоим интересом')).toBe(true);
+    }
+  });
+
+  it('selectedCategories отражает интересы и проект без дублей', () => {
+    const categories = selectedCategories({
+      interestIds: ['interest-tech', 'interest-create'],
+      projectId: 'project-page',
+      goalId: null,
+    });
+    expect(categories).toEqual(['technology', 'creativity']);
   });
 });

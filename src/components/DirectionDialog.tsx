@@ -1,6 +1,6 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
 import type { Direction, GoalId } from '../lib/types';
-import { CATEGORY_COLORS, CATEGORY_LABELS } from '../data/categories';
+import { CATEGORY_LABELS } from '../data/categories';
 import './interest/interest.css';
 
 type DirectionDialogProps = {
@@ -89,12 +89,12 @@ export default function DirectionDialog({ direction, goalId, onClose }: Directio
             </button>
           </div>
 
-          <div className="vp-dialog-chips">
+          <div className="vp-direction-chips">
             {direction.categories.map((category) => (
               <span
                 key={category}
                 className="vp-direction-chip"
-                style={{ '--chip-color': CATEGORY_COLORS[category] } as CSSProperties}
+                style={{ '--chip-color': `var(--cat-${category})` } as CSSProperties}
               >
                 <span className="vp-direction-chip-dot" aria-hidden="true" />
                 {CATEGORY_LABELS[category]}

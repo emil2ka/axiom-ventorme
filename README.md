@@ -1,6 +1,6 @@
-# Выбери свой путь — знакомство с Ventorme
+# Выбери свой путь — «Атлас будущего» (Ventorme × Hacknext 2026)
 
-Интерактивный лендинг команды для Hacknext 2026: школьник выбирает интересы, получает редакционную подборку направлений для знакомства и переходит в Ventorme для регистрации.
+Интерактивный лендинг команды: школьник выбирает интересы, получает редакционную подборку направлений для знакомства и переходит в Ventorme для регистрации. Визуальная концепция — пять объёмных лент, сходящихся в один узел и расходящихся в возможные пути (Three.js), серебряный материал, лаймовый акцент, типографика Unbounded + Manrope.
 
 > Это проектная страница команды, не официальный сайт Ventorme. Собственной регистрации на лендинге нет: все CTA ведут в Ventorme.
 
@@ -13,9 +13,9 @@ npm install       # установка зависимостей
 npm run dev       # локальная разработка (http://localhost:4321)
 npm run build     # production-сборка в dist/
 npm run preview   # предпросмотр собранной версии
-npm test          # 13 автотестов (логика подборки, SSR-смоук, компас)
+npm test          # 27 автотестов (логика подборки, store, SSR-смоук)
 npm run check:release  # проверка выпуска (режим, ссылки, заглушки)
-npm run shots     # браузерный сценарий + скриншоты в docs/screenshots (нужен локальный Chromium)
+npm run shots     # браузерный сценарий и скриншоты в docs/screenshots
 ```
 
 ## Режимы выпуска (preview / competition)
@@ -27,49 +27,37 @@ URL регистрации собирается в единственном ме
 | preview (по умолчанию) | — | все CTA ведут на `https://ventorme.ai/register` без атрибуции |
 | competition | `PUBLIC_VENTORME_MODE=competition`, `PUBLIC_VENTORME_TEAM_ID=<номер>` | `https://ventorme.ai/register?utm_source=hacknext&utm_campaign=team-<номер>` |
 
-Номер хранится строкой (ведущие нули сохраняются). Скопируйте `.env.example` в `.env` и заполните.
+Номер — строка (ведущие нули сохраняются). Скопируйте `.env.example` в `.env`. Сборка в competition без номера падает; `check:release` отклоняет заглушки (`017`, `XXX`, `TODO`…). Матрица проверена: 042 → OK, 017 → FAIL, без номера → build FAIL, preview → OK.
 
-Конкурсный выпуск без номера невозможен: сборка в режиме `competition` без `PUBLIC_VENTORME_TEAM_ID` падает с понятной ошибкой; `npm run check:release` дополнительно отклоняет номер-заглушку (`017`, `XXX`, `TODO` и т.п.) и любую ссылку в HTML, не совпадающую с командной.
-
-Проверенная матрица (реальные запуски): competition+042 → OK; competition+017 → FAIL; competition без номера → сборка падает; preview → OK.
-
-## Структура
+## Структура (ключевое)
 
 ```text
 src/
-  pages/index.astro          # композитор страницы
-  layouts/BaseLayout.astro   # HTML-каркас, метаданные, шрифты
-  components/                # секции (astro) и острова (tsx)
-    CompassScene.tsx         # SVG-компас (hero / selection / result)
-    InterestExperience.tsx   # остров подборки: вопросы → результат
-    QuestionPanel.tsx, DirectionResults.tsx, DirectionDialog.tsx, SelectionSummary.tsx
-    SiteHeader.astro, Hero.astro, VentormeFeatures.astro, RegistrationSteps.astro, Faq.astro, FinalScene.astro, SiteFooter.astro
-  config/campaign.ts         # единственный источник URL регистрации
-  config/motion.ts           # длительности и кривые движения
-  data/questions.ts          # 3 вопроса и их категории
-  data/directions.ts         # 10 направлений + примеры для пропуска
-  lib/recommend.ts           # детерминированная логика подборки
-  lib/session.ts             # sessionStorage (без персональных данных)
-  lib/events.ts              # события аналитики (свои, без внешнего SDK)
+  components/
+    scene/atlasScene.ts        # Three.js: пять лент, морф «путь собран», свет, состояния
+    scene/FutureAtlas.tsx      # остров: canvas + SVG-постер + подписи-ветки
+    InterestExperience.tsx     # вопросы/результаты/демо/edit (единый остров)
+    QuestionPanel.tsx, DirectionResults.tsx, DirectionDialog.tsx, interest/BranchPanel.tsx
+    FeatureShowcase.tsx (Ventorme), FaqExperience.tsx, FinalScene.tsx
+    Hero.astro, SiteHeader.astro, SiteFooter.astro, RegistrationSteps.astro, RegistrationLink.astro
+  lib/journeyStore.ts          # единое состояние (фазы, draft/committed, edit, demo)
+  lib/recommend.ts             # детерминированная подборка + объяснения причин
+  config/campaign.ts           # единственный источник URL регистрации
+  data/questions.ts, data/directions.ts
   styles/tokens.css, global.css
-public/fonts/                # Manrope (кириллица+латиница, 44 КБ)
-public/images/share-cover.png
-scripts/check-release.mjs, screenshots.mjs, make-cover.mjs
-tests/                       # vitest
-docs/                        # contracts, ownership, progress, qa-report, handoff, research, screenshots
+public/fonts/                  # Manrope + Unbounded (OFL, локально)
+docs/                          # contracts, redesign-decisions, redesign-review, qa-report, handoff, screenshots
 ```
 
-## Ключевые решения
+## Что важно знать
 
-- **Astro 7 + React 19 острова**: весь базовый контент и ссылки — в статическом HTML (страница работает без JS), интерактив — два острова (`HeroCompass`, `InterestExperience`).
-- **Компас направлений** — SVG/CSS без WebGL: дуги, световое ядро, кликабельные подписи; наклон ≤4° только на точном указателе; пауза вне экрана и при скрытой вкладке; полная статика при reduced motion.
-- **Подборка** — прозрачное правило: q1 +2 за категорию, q2 +2; при равенстве честное смешанное сообщение; никаких процентов «совместимости». Полная логика в `src/lib/recommend.ts`, покрыта тестами по всем 225 допустимым комбинациям.
-- **Доступность**: настоящие checkbox/radio, fieldset/legend, `<dialog>` с возвратом фокуса, FAQ на `<details>`, skip-link, видимый фокус, reduced motion (системный + переключатель «Уменьшить анимацию»).
-- **Аналитика** — опциональные собственные события (`window.__vpEvents`, событие `vp:event`), не блокируют переходы; внешних SDK нет.
+- **Сцена**: three.js загружается динамическим импортом после простоя; до/вместо WebGL показывается полноценный SVG-постер; reduced motion — статичная поза. Один RAF, пауза вне экрана и скрытой вкладке, DPR ≤2.
+- **Состояние**: `initial → q1→q3 → result`; отдельные режимы `demo` (примеры) и `edit` (черновик с отменой/фиксацией); hero-CTA запускает q1 (подпись меняется по фазе); ветки hero работают до и после гидратации; reload восстанавливает черновик, диалог закрыт.
+- **Честность**: без процентов совместимости; причины результата строятся по реальным совпадениям категорий; demo честно помечен «Примеры»; ответы не передаются в Ventorme (интеграции нет).
+- **Доступность**: настоящие input/fieldset, `<dialog>` с возвратом фокуса, FAQ-индекс/аккордеон, focus-visible, skip-link, reduced motion (системный + ручной переключатель).
 
-## Ограничения интеграции
+## Ограничения
 
-- Ответы с лендинга **не передаются** в аккаунт Ventorme: API-интеграции нет, тексты это честно отражают.
-- Реальный путь онбординга Ventorme командой не проверялся (нужен аккаунт); формулировки нейтральные, см. `docs/handoff.md`.
-- Preview-режим не даёт конкурсной атрибуции: без официального номера команды публиковать как конкурсную версию нельзя.
-- Подробности проверок — в `docs/qa-report.md`; чек-лист перед сдачей — в `docs/handoff.md`.
+- Публикация и конкурсный номер команды — вне этой сборки (см. `docs/handoff.md`).
+- Браузерная проверка выполнена в Chromium headless; реальные устройства — на команде.
+- Подробности решений — `docs/redesign-decisions.md`; отчёт проверок — `docs/redesign-review.md`.

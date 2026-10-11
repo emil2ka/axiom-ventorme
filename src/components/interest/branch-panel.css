@@ -1,0 +1,56 @@
+.vp-branch {
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+}
+
+.vp-branch svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.vp-branch-ribbon {
+  transition: opacity var(--dur-selection) var(--ease-out);
+  opacity: 0.4;
+}
+
+.vp-branch[data-mode='selection'] .vp-branch-ribbon[data-active='true'] {
+  opacity: 1;
+}
+
+.vp-branch-path {
+  transition: stroke var(--dur-selection) var(--ease-out), filter var(--dur-selection) var(--ease-out);
+}
+
+.vp-branch-ribbon[data-active='true'] .vp-branch-path {
+  stroke: color-mix(in srgb, var(--silver) 75%, transparent);
+  filter: drop-shadow(0 0 10px rgba(207, 251, 116, 0.35));
+}
+
+.vp-branch-edge {
+  transition: opacity var(--dur-selection) var(--ease-out);
+  opacity: 0.25;
+}
+
+.vp-branch-ribbon[data-active='true'] .vp-branch-edge {
+  opacity: 1;
+}
+
+.vp-branch-nodes {
+  fill: var(--accent);
+  opacity: 0;
+  transition: opacity var(--dur-result) var(--ease-out);
+}
+
+.vp-branch[data-mode='result'] .vp-branch-nodes {
+  opacity: 1;
+}
+
+.vp-branch[data-mode='result'] .vp-branch-ribbon {
+  opacity: 0.32;
+}
+
+.vp-branch[data-mode='result'] .vp-branch-ribbon[data-active='true'] {
+  opacity: 0.85;
+}

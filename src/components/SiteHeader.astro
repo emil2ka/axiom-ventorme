@@ -24,8 +24,9 @@ const reg = registrationUrl();
       </span>
     </a>
     <nav class="header-nav" aria-label="Основная навигация">
-      <a class="header-link" href="#directions">Направления</a>
-      <a class="header-link" href="#steps">Как это работает</a>
+      <a class="header-link" href="#interests">Исследовать</a>
+      <a class="header-link" href="#ventorme">Возможности Ventorme</a>
+      <a class="header-link" href="#steps">Как начать</a>
       <a class="header-link" href="#faq">Вопросы</a>
     </nav>
     <div class="header-actions">
@@ -33,7 +34,7 @@ const reg = registrationUrl();
         class="btn btn--secondary btn--sm header-cta"
         href={reg}
         data-reg-link
-        data-placement="header">В Ventorme</a
+        data-placement="header">Открыть Ventorme</a
       >
       <button
         class="menu-btn"
@@ -49,12 +50,13 @@ const reg = registrationUrl();
   </div>
   <div class="menu-panel" id="site-menu" data-menu-panel data-open="false" inert>
     <nav class="menu-nav" aria-label="Меню">
-      <a class="menu-link" href="#directions">Направления</a>
-      <a class="menu-link" href="#steps">Как это работает</a>
+      <a class="menu-link" href="#interests">Исследовать</a>
+      <a class="menu-link" href="#ventorme">Возможности Ventorme</a>
+      <a class="menu-link" href="#steps">Как начать</a>
       <a class="menu-link" href="#faq">Вопросы</a>
     </nav>
     <a class="btn btn--primary menu-cta" href={reg} data-reg-link data-placement="header"
-      >В Ventorme</a
+      >Открыть Ventorme</a
     >
     <button class="menu-motion" type="button" aria-pressed="false" data-motion-toggle>
       <span class="menu-motion-dot" aria-hidden="true"></span>
@@ -71,7 +73,7 @@ const reg = registrationUrl();
     right: 0;
     z-index: 120;
     height: var(--header-h);
-    background: rgba(9, 11, 19, 0.94);
+    background: rgba(8, 10, 17, 0.94);
     border-bottom: 1px solid var(--border);
     transition:
       background-color var(--dur-hover) var(--ease-out),
@@ -85,7 +87,7 @@ const reg = registrationUrl();
 
   .site-header[data-scrolled='true'],
   .site-header[data-menu-open='true'] {
-    background: rgba(9, 11, 19, 0.85);
+    background: rgba(8, 10, 17, 0.85);
     border-bottom-color: var(--border);
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);

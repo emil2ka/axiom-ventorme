@@ -1,52 +1,76 @@
 import type { RefObject } from 'react';
 import { questions } from '../data/questions';
-import type { Answers, GoalId, JourneyStep } from '../lib/types';
+import { CATEGORY_LABELS } from '../data/categories';
+import type { GoalId, JourneyState } from '../lib/types';
 import './interest/interest.css';
 
-type Step = Extract<JourneyStep, 'q1' | 'q2' | 'q3'>;
-
 type QuestionPanelProps = {
-  step: Step;
-  answers: Answers;
-  limitMessage: boolean;
+  journey: JourneyState;
   busy: boolean;
+  limitMessage: boolean;
   headingRef: RefObject<HTMLHeadingElement | null>;
   onToggleInterest: (id: string) => void;
   onSelectProject: (id: string) => void;
   onSelectGoal: (id: GoalId) => void;
   onNext: () => void;
   onBack: () => void;
+  onCancelEdit: () => void;
+  onClearRequested: () => void;
 };
 
-const STEP_INDEX: Record<Step, number> = { q1: 1, q2: 2, q3: 3 };
+const STEP_INDEX: Record<string, number> = { q1: 1, q2: 2, q3: 3 };
 
 export default function QuestionPanel({
-  step,
-  answers,
-  limitMessage,
+  journey,
   busy,
+  limitMessage,
   headingRef,
   onToggleInterest,
   onSelectProject,
   onSelectGoal,
   onNext,
   onBack,
+  onCancelEdit,
+  onClearRequested,
 }: QuestionPanelProps) {
+  const { step, mode, draft, requestedCategory } = journey;
   const index = STEP_INDEX[step];
   const title =
-    step === 'q1' ? questions.q1.title : step === 'q2' ? questions.q2.title : questions.q3.title;
+    step === 'q1'
+      ? questions.q1.title
+      : step === 'q2'
+        ? questions.q2.title
+        : questions.q3.title;
 
   const canProceed =
     step === 'q1'
-      ? answers.interestIds.length > 0
+      ? draft.interestIds.length > 0
       : step === 'q2'
-        ? answers.projectId !== null
-        : answers.goalId !== null;
+        ? draft.projectId !== null
+        : draft.goalId !== null;
 
-  const nextLabel = step === 'q3' ? 'Показать направления' : 'Далее';
+  const nextLabel =
+    step === 'q3'
+      ? mode === 'edit'
+        ? 'Обновить подборку'
+        : 'Показать направления'
+      : 'Далее';
 
   return (
     <div className="vp-interest-step">
+      {mode === 'edit' && journey.resultIds ? (
+        <div className="vp-interest-editbar">
+          <span className="vp-interest-editbar-label">Редактирование ответов</span>
+          <button
+            type="button"
+            className="btn btn--ghost btn--sm"
+            onClick={onCancelEdit}
+          >
+            Отменить изменения
+          </button>
+        </div>
+      ) : null}
+
       <div className="vp-interest-progress">
         <span className="vp-interest-progress-text">Вопрос {index} из 3</span>
         <span className="vp-interest-progress-bar" aria-hidden="true">
@@ -65,9 +89,26 @@ export default function QuestionPanel({
         <fieldset className="vp-interest-fieldset">
           <legend className="visually-hidden">{title}</legend>
           <p className="vp-interest-hint">Выбери до двух интересов</p>
+
+          {requestedCategory ? (
+            <p className="vp-interest-requested" role="status">
+              <span>
+                Чтобы добавить «{CATEGORY_LABELS[requestedCategory]}», сними один из выбранных
+                интересов
+              </span>
+              <button
+                type="button"
+                className="btn btn--ghost btn--sm"
+                onClick={onClearRequested}
+              >
+                Понятно
+              </button>
+            </p>
+          ) : null}
+
           <div className="vp-interest-options">
             {questions.q1.options.map((option) => {
-              const selected = answers.interestIds.includes(option.id);
+              const selected = draft.interestIds.includes(option.id);
               return (
                 <label
                   key={option.id}
@@ -97,7 +138,7 @@ export default function QuestionPanel({
           <legend className="visually-hidden">{title}</legend>
           <div className="vp-interest-options">
             {questions.q2.options.map((option) => {
-              const selected = answers.projectId === option.id;
+              const selected = draft.projectId === option.id;
               return (
                 <label
                   key={option.id}
@@ -127,7 +168,7 @@ export default function QuestionPanel({
           <legend className="visually-hidden">{title}</legend>
           <div className="vp-interest-options">
             {questions.q3.options.map((option) => {
-              const selected = answers.goalId === option.id;
+              const selected = draft.goalId === option.id;
               return (
                 <label
                   key={option.id}
