@@ -58,7 +58,7 @@ for (const file of files) {
   const isMarkup = /\.(html|svg|xml|txt|json)$/.test(file);
   const isCode = /\.(js|css)$/.test(file);
   if (!isMarkup && !isCode) continue;
-  const content = readFileSync(file, 'utf8');
+  const content = readFileSync(file, 'utf8').replaceAll('&quot;', '"');
   if (isMarkup) {
     let m;
     while ((m = REGISTER_RE.exec(content)) !== null) foundUrls.add(m[0]);

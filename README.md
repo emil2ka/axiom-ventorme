@@ -1,63 +1,71 @@
-# Выбери свой путь — «Атлас будущего» (Ventorme × Hacknext 2026)
+# Axiom (Ventorme)
 
-Интерактивный лендинг команды: школьник выбирает интересы, получает редакционную подборку направлений для знакомства и переходит в Ventorme для регистрации. Визуальная концепция — пять объёмных лент, сходящихся в один узел и расходящихся в возможные пути (Three.js), серебряный материал, лаймовый акцент, типографика Unbounded + Manrope.
+Интерактивный пиксельный лендинг Ventorme для Hacknext. Пять тематических островов и маленький центральный остров с одним путешественником. Белый фон и сине-белая палитра.
 
-> Это проектная страница команды, не официальный сайт Ventorme. Собственной регистрации на лендинге нет: все CTA ведут в Ventorme.
+## Запуск
 
-## Быстрый старт
+Нужен Node.js 22.12 или новее.
 
-Требуется Node >= 22.12.
-
-```bash
-npm install       # установка зависимостей
-npm run dev       # локальная разработка (http://localhost:4321)
-npm run build     # production-сборка в dist/
-npm run preview   # предпросмотр собранной версии
-npm test          # 27 автотестов (логика подборки, store, SSR-смоук)
-npm run check:release  # проверка выпуска (режим, ссылки, заглушки)
-npm run shots     # браузерный сценарий и скриншоты в docs/screenshots
+```sh
+npm ci
+npm run dev -- --host 127.0.0.1 --port 4321
 ```
 
-## Режимы выпуска (preview / competition)
+Открой http://127.0.0.1:4321/. Astro 7 запускает сервер в фоне:
 
-URL регистрации собирается в единственном месте — `src/config/campaign.ts`.
-
-| Режим | Переменные | Что получается |
-| --- | --- | --- |
-| preview (по умолчанию) | — | все CTA ведут на `https://ventorme.ai/register` без атрибуции |
-| competition | `PUBLIC_VENTORME_MODE=competition`, `PUBLIC_VENTORME_TEAM_ID=<номер>` | `https://ventorme.ai/register?utm_source=hacknext&utm_campaign=team-<номер>` |
-
-Номер — строка (ведущие нули сохраняются). Скопируйте `.env.example` в `.env`. Сборка в competition без номера падает; `check:release` отклоняет заглушки (`017`, `XXX`, `TODO`…). Матрица проверена: 042 → OK, 017 → FAIL, без номера → build FAIL, preview → OK.
-
-## Структура (ключевое)
-
-```text
-src/
-  components/
-    scene/atlasScene.ts        # Three.js: пять лент, морф «путь собран», свет, состояния
-    scene/FutureAtlas.tsx      # остров: canvas + SVG-постер + подписи-ветки
-    InterestExperience.tsx     # вопросы/результаты/демо/edit (единый остров)
-    QuestionPanel.tsx, DirectionResults.tsx, DirectionDialog.tsx, interest/BranchPanel.tsx
-    FeatureShowcase.tsx (Ventorme), FaqExperience.tsx, FinalScene.tsx
-    Hero.astro, SiteHeader.astro, SiteFooter.astro, RegistrationSteps.astro, RegistrationLink.astro
-  lib/journeyStore.ts          # единое состояние (фазы, draft/committed, edit, demo)
-  lib/recommend.ts             # детерминированная подборка + объяснения причин
-  config/campaign.ts           # единственный источник URL регистрации
-  data/questions.ts, data/directions.ts
-  styles/tokens.css, global.css
-public/fonts/                  # Manrope + Unbounded (OFL, локально)
-docs/                          # contracts, redesign-decisions, redesign-review, qa-report, handoff, screenshots
+```sh
+npm run dev -- status
+npm run dev -- logs
+npm run dev -- stop
 ```
 
-## Что важно знать
+## Что работает
 
-- **Сцена**: three.js загружается динамическим импортом после простоя; до/вместо WebGL показывается полноценный SVG-постер; reduced motion — статичная поза. Один RAF, пауза вне экрана и скрытой вкладке, DPR ≤2.
-- **Состояние**: `initial → q1→q3 → result`; отдельные режимы `demo` (примеры) и `edit` (черновик с отменой/фиксацией); hero-CTA запускает q1 (подпись меняется по фазе); ветки hero работают до и после гидратации; reload восстанавливает черновик, диалог закрыт.
-- **Честность**: без процентов совместимости; причины результата строятся по реальным совпадениям категорий; demo честно помечен «Примеры»; ответы не передаются в Ventorme (интеграции нет).
-- **Доступность**: настоящие input/fieldset, `<dialog>` с возвратом фокуса, FAQ-индекс/аккордеон, focus-visible, skip-link, reduced motion (системный + ручной переключатель).
+- Прежние пиксельные острова из одобренного концепта: направление, университет, подготовка, финансирование, заявка.
+- Один герой: приседание, отталкивание, полёт по дуге, приземление с восстановлением и ходьба.
+- Камера приближает выбранный остров; иллюстрация карты плавно смешивается с детальной сценой. Общий белый фон и герой сохраняются в DOM.
+- У каждого острова собственное здание: мастерская, университетский кампус, библиотека, павильон стипендий, приёмная.
+- Внутри можно нажать на дорожку или на вход. Герой подходит к точке; у входа открывается описание и переход на платформу Ventorme.
+- Возвращение отдаляет камеру и возвращает героя на центральный остров прыжком.
+- Адаптивная композиция, клавиатурный выбор, системное уменьшение движения и ручной переключатель.
+- Окружение статично: деревья и камни не двигаются, поэтому в иллюстрации не появляются разрывы.
 
-## Ограничения
+Это лендинг. Подбор вуза, тесты и регистрация продолжаются на официальной платформе; здесь эти функции не имитируются.
 
-- Публикация и конкурсный номер команды — вне этой сборки (см. `docs/handoff.md`).
-- Браузерная проверка выполнена в Chromium headless; реальные устройства — на команде.
-- Подробности решений — `docs/redesign-decisions.md`; отчёт проверок — `docs/redesign-review.md`.
+## Основные файлы
+
+- `src/components/pixel/UnifiedLanding.tsx` — сцена, камера, последовательность прыжка и переходы.
+- `src/components/pixel/HeroSprite.tsx` — воспроизведение 24 кадров персонажа.
+- `src/components/pixel/worlds.ts` — содержание островов.
+- `src/components/pixel/unified.css`, `pixel.css` — интерфейс и адаптивность.
+- `public/map-islands/` — прежние SVG-острова карты.
+- `public/islands/` — прозрачные детальные иллюстрации внутренних сцен.
+- `public/characters/hero-atlas.png` — атлас персонажа: 6 столбцов × 4 ряда.
+- `src/config/campaign.ts` — ссылка регистрации и атрибуция команды.
+
+Происхождение изображений и спецификация генерации: [docs/pixel-assets.md](docs/pixel-assets.md). Компоненты прежних вариантов остаются в исходниках, но главная страница подключает только UnifiedLanding.
+
+## Проверки
+
+Перед сборкой останови dev-сервер, чтобы два процесса Vite не оптимизировали зависимости одновременно.
+
+```sh
+npm run dev -- stop
+npm run build
+npx --no-install tsc --noEmit
+npm test
+npm run check:release
+```
+
+Тесты проверяют логику рекомендаций, состояние, SSR и кампанию. Визуальные переходы дополнительно проверяются в браузере на компьютере и телефоне.
+
+## Конкурсная ссылка
+
+По умолчанию кнопки ведут на `https://ventorme.ai/register` без номера команды. Для конкурса нужен официальный номер:
+
+```sh
+PUBLIC_VENTORME_MODE=competition PUBLIC_VENTORME_TEAM_ID=YOUR_TEAM npm run build
+PUBLIC_VENTORME_MODE=competition PUBLIC_VENTORME_TEAM_ID=YOUR_TEAM npm run check:release
+```
+
+Настройки есть в `.env.example`. Секреты и локальные `.env` в репозиторий не входят.

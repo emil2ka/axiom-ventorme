@@ -79,6 +79,7 @@ function makeEnvironmentTexture(): THREE.Texture {
   canvas.width = 1024;
   canvas.height = 512;
   const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas 2D is unavailable');
   const gradient = ctx.createLinearGradient(0, 0, 0, 512);
   gradient.addColorStop(0, '#2b3444');
   gradient.addColorStop(0.48, '#111726');

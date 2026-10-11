@@ -1,27 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SiteHeader from '../components/SiteHeader.astro';
-import Hero from '../components/Hero.astro';
-import InterestExperience from '../components/InterestExperience.tsx';
-import VentormeFeatures from '../components/VentormeFeatures.astro';
-import RegistrationSteps from '../components/RegistrationSteps.astro';
-import Faq from '../components/Faq.astro';
-import FinalScene from '../components/FinalScene.tsx';
-import SiteFooter from '../components/SiteFooter.astro';
+import PixelLanding from '../components/pixel/UnifiedLanding';
+import { registrationUrl } from '../config/campaign';
 ---
-
-<BaseLayout
-  title="Выбери свой путь — знакомство с Ventorme"
-  description="Посмотри направления по своим интересам и узнай, как Ventorme помогает с выбором профессии и поступлением."
->
-  <SiteHeader />
-  <main id="main">
-    <Hero />
-    <InterestExperience client:visible />
-    <VentormeFeatures />
-    <RegistrationSteps />
-    <Faq />
-    <FinalScene client:visible />
-  </main>
-  <SiteFooter />
+<BaseLayout title="Ventorme — куда поступать? Начнём с тебя." description="Познакомься с Ventorme: выбор направления и вуза, подготовка к экзаменам и план поступления. Начни бесплатно.">
+ <PixelLanding client:load registrationHref={registrationUrl()} />
 </BaseLayout>
