@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Ventorme — transition reference</title>
+<style is:global>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fafbfc}.frame{position:relative;width:100vw;height:100vh;overflow:hidden;background:radial-gradient(ellipse at 72% 45%,#eef6ff 0%,#fafcfe 60%,#fafbfc 100%)}.environment{position:absolute;display:block;user-select:none}.hero{position:absolute;background:url('/characters/hero-atlas.png') 0 0/600% 400% no-repeat;image-rendering:pixelated;transform:translate(-53.71%,-98.04%);pointer-events:none}
+</style></head>
+<body><main class="frame" aria-label="Кадр для генерации перехода"><img class="environment" src="/map-islands/university-polished.png" alt="Пиксельный остров"/><div class="hero" role="img" aria-label="Путешественник"/></main>
+<script>
+const anchors={direction:{map:[50,59],inside:[50,66]},university:{map:[50,60],inside:[50,67]},preparation:{map:[50,59],inside:[52,71]},funding:{map:[52,58],inside:[50,65]},application:{map:[50,59],inside:[50,64]}};
+const query=new URLSearchParams(location.search),requested=query.get('world')??'university';const key=(Object.hasOwn(anchors,requested)?requested:'university') as keyof typeof anchors;const inside=query.get('view')==='inside';
+const image=document.querySelector<HTMLImageElement>('.environment')!,hero=document.querySelector<HTMLElement>('.hero')!,frame=document.querySelector<HTMLElement>('.frame')!;
+image.src=inside?`/islands/${key}.png`:`/map-islands/${key}-polished.png`;
+function layout(){const width=inside?Math.min(innerWidth*1.4,innerHeight*2.6):Math.min(650,innerWidth*.85,innerHeight*.9);const height=width*(inside?941/1672:1),left=(innerWidth-width)/2,top=inside?innerHeight*.47-height*.4:(innerHeight-height)/2;const anchor=anchors[key][inside?'inside':'map'];Object.assign(image.style,{width:`${width}px`,height:`${height}px`,left:`${left}px`,top:`${top}px`});Object.assign(hero.style,{width:inside?'148px':'64px',height:inside?'148px':'64px',left:`${left+width*anchor[0]/100}px`,top:`${top+height*anchor[1]/100}px`});}
+const atlas=new Image();atlas.src='/characters/hero-atlas.png';Promise.all([image.decode(),atlas.decode()]).then(()=>{layout();frame.dataset.ready='true';});window.addEventListener('resize',layout);layout();
+</script>
+</body></html>

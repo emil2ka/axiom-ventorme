@@ -4,7 +4,7 @@
 
 ## Карта
 
-`public/map-islands/{direction,university,preparation,funding,application,home}.svg` — прежние пиксельные острова из согласованного светлого концепта, трассированные в SVG. Они сохранены визуально; подвижных деревьев нет.
+`public/map-islands/{direction,university,preparation,funding,application,home}.svg` — прежние пиксельные острова из согласованного светлого концепта, трассированные в SVG. Исходники сохранены рядом. Текущая карта использует `*-polished.png`: отдельные прозрачные спрайты с теми же маленькими зданиями, восстановленными светлыми участками и цельными краями. Полные промпты: [map-polish-prompts.md](map-polish-prompts.md).
 
 ## Детальные сцены
 

@@ -7,3 +7,17 @@
 
 .unified-scene-title{background:#ffffffee;border:1px solid #edf2fa;border-radius:12px;padding:12px 16px}.unified-scene-title h2{font-size:clamp(24px,2.2vw,32px);margin-top:8px}.scene-active .pixel-brand{background:#fffffff0;padding:8px 12px;border-radius:8px;margin-left:-12px}.scene-active .nav-link{background:#fffffff0;padding:8px 12px;border-radius:24px}
 @media(max-width:760px){.unified-scene-title{background:transparent;border:0;padding:0}.unified-scene-title h2{font-size:27px}}
+
+/* A complete sprite floats as one layer; foliage and stone never separate. */
+.unified-landing .map-art,.unified-landing .home-art{animation:island-hover 7s ease-in-out infinite;will-change:transform}
+.unified-landing .island-0 .map-art{animation-duration:7.3s;animation-delay:-1.2s}
+.unified-landing .island-1 .map-art{animation-duration:8.1s;animation-delay:-3.8s}
+.unified-landing .island-2 .map-art{animation-duration:6.8s;animation-delay:-2.4s}
+.unified-landing .island-3 .map-art{animation-duration:7.7s;animation-delay:-.7s}
+.unified-landing .island-4 .map-art{animation-duration:8.4s;animation-delay:-4.5s}
+.unified-landing.worlds-still .map-art,.unified-landing.worlds-still .home-art{animation-play-state:paused}
+@keyframes island-hover{0%,100%{transform:translateY(3px)}50%{transform:translateY(-3px)}}
+@media(max-width:760px){.unified-landing .island-0{left:22%!important;width:46%!important}.unified-landing .island-1{left:73%!important;width:58%!important}.unified-landing .island-2{width:43%!important}.unified-landing .island-3{width:28%!important}.unified-landing .island-4{left:85%!important;width:28%!important}}
+
+.unified-landing .journey-status{bottom:-42px}
+@media(max-width:760px){.unified-landing .world-stage{height:580px}.unified-landing .island-1{left:72%!important;width:56%!important}.unified-landing .journey-status{bottom:12px}}
