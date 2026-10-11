@@ -74,4 +74,4 @@ PUBLIC_VENTORME_MODE=competition PUBLIC_VENTORME_TEAM_ID=YOUR_TEAM npm run check
 
 ## Кадры для видеоперехода
 
-[Промпт на 4 секунды](docs/transition-prompt.md). Чистые кадры можно снова получить через `/transition-frame?world=university&view=map` и `/transition-frame?world=university&view=inside`. Допустимые world: direction, university, preparation, funding, application. Страница предназначена для экспорта референсов без интерфейса; она не подключена к пользовательской навигации. Промпты доработки островов: [docs/map-polish-prompts.md](docs/map-polish-prompts.md).
+[Промпт на 4 секунды](docs/transition-prompt.md). Кадры без персонажей можно снова получить через `/transition-frame?world=university&view=map` и `/transition-frame?world=university&view=inside`. Допустимые world: direction, university, preparation, funding, application. Страница предназначена для экспорта референсов без интерфейса; она не подключена к пользовательской навигации. Промпты доработки островов: [docs/map-polish-prompts.md](docs/map-polish-prompts.md).

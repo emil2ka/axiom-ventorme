@@ -19,3 +19,7 @@ Registration opens the official platform. Backend diagnostics, university search
 Five map sprites regenerated from the approved concept with preserved buildings and silhouettes. Opaque parts have clear margins inside each asset. The entire image floats ±3px; no fragments move separately. Home hero ground offset sampled over 24 frames varies by under 0.05px. Motion pauses during jump/zoom, and the hero stays at opacity 1. The old SVG sources remain available. Ten clean start/end video reference frames exported at 1280×720; video generation is left to the user.
 
 Mobile opaque-island bounds checked against the stage and viewport: all five uncut. Minimum horizontal margin 7px, minimum bottom margin 32px. Reduced motion disables floating; full motion restored after verification.
+
+## Environment-only video reference update
+
+All ten video reference frames re-exported without any hero layer. Export page contains one environment image and zero character nodes in each world/view. Main landing character is unchanged. Video prompts explicitly forbid people, avatars and silhouettes throughout.
