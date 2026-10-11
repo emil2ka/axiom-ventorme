@@ -1,0 +1,28 @@
+{
+  "ctaUrls": [
+    "https://ventorme.ai/register",
+    "https://ventorme.ai/register",
+    "https://ventorme.ai/register",
+    "https://ventorme.ai/register",
+    "https://ventorme.ai/register",
+    "https://ventorme.ai/register",
+    "https://ventorme.ai/register"
+  ],
+  "horizontalOverflowDesktop": false,
+  "mixedNote": false,
+  "cardCount": 3,
+  "dialogOpen": true,
+  "dialogClosedAfterEscape": true,
+  "focusReturnedToCard": true,
+  "selectionSummaryHasDirections": true,
+  "faqFirstOpen": true,
+  "horizontalOverflowMobile": false,
+  "menuOpen": true,
+  "menuClosedAfterEscape": true,
+  "noJsHasTitle": true,
+  "noJsHasRegistrationLink": true,
+  "noJsHasFaq": 7,
+  "consoleErrors": [],
+  "failedRequests": [],
+  "browser": "/Users/emil2ka/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+}

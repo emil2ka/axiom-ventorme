@@ -1,0 +1,451 @@
+---
+import { registrationUrl } from '../config/campaign';
+
+const reg = registrationUrl();
+---
+
+<header class="site-header" data-header>
+  <script is:inline>
+    document.querySelector('[data-header]')?.setAttribute('data-js', 'true');
+  </script>
+  <div class="container header-bar">
+    <a class="brand" href="#main">
+      <svg class="brand-mark" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path class="brand-line" d="M5 25 13 13 27 10" fill="none" />
+        <circle class="brand-halo" cx="13" cy="13" r="6" />
+        <circle class="brand-dot" cx="13" cy="13" r="2.4" />
+      </svg>
+      <span class="brand-text">
+        <span class="brand-title">
+          <span class="brand-full">Выбери свой путь</span>
+          <span class="brand-short">Твой путь</span>
+        </span>
+        <span class="brand-sub">с Ventorme</span>
+      </span>
+    </a>
+    <nav class="header-nav" aria-label="Основная навигация">
+      <a class="header-link" href="#directions">Направления</a>
+      <a class="header-link" href="#steps">Как это работает</a>
+      <a class="header-link" href="#faq">Вопросы</a>
+    </nav>
+    <div class="header-actions">
+      <a
+        class="btn btn--secondary btn--sm header-cta"
+        href={reg}
+        data-reg-link
+        data-placement="header">В Ventorme</a
+      >
+      <button
+        class="menu-btn"
+        type="button"
+        aria-label="Открыть меню"
+        aria-expanded="false"
+        aria-controls="site-menu"
+        data-menu-btn
+      >
+        <span class="menu-icon" aria-hidden="true"></span>
+      </button>
+    </div>
+  </div>
+  <div class="menu-panel" id="site-menu" data-menu-panel data-open="false" inert>
+    <nav class="menu-nav" aria-label="Меню">
+      <a class="menu-link" href="#directions">Направления</a>
+      <a class="menu-link" href="#steps">Как это работает</a>
+      <a class="menu-link" href="#faq">Вопросы</a>
+    </nav>
+    <a class="btn btn--primary menu-cta" href={reg} data-reg-link data-placement="header"
+      >В Ventorme</a
+    >
+    <button class="menu-motion" type="button" aria-pressed="false" data-motion-toggle>
+      <span class="menu-motion-dot" aria-hidden="true"></span>
+      Уменьшить анимацию
+    </button>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 120;
+    height: var(--header-h);
+    background: rgba(9, 11, 19, 0.94);
+    border-bottom: 1px solid var(--border);
+    transition:
+      background-color var(--dur-hover) var(--ease-out),
+      border-color var(--dur-hover) var(--ease-out);
+  }
+
+  .site-header[data-js='true'] {
+    background: transparent;
+    border-bottom-color: transparent;
+  }
+
+  .site-header[data-scrolled='true'],
+  .site-header[data-menu-open='true'] {
+    background: rgba(9, 11, 19, 0.85);
+    border-bottom-color: var(--border);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+
+  @supports not ((-webkit-backdrop-filter: blur(4px)) or (backdrop-filter: blur(4px))) {
+    .site-header[data-scrolled='true'],
+    .site-header[data-menu-open='true'] {
+    background: #0a0d16;
+    }
+  }
+
+  .header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    height: 100%;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .brand-mark {
+    flex: none;
+  }
+
+  .brand-line {
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+  }
+
+  .brand-halo {
+    fill: var(--accent);
+    opacity: 0.25;
+  }
+
+  .brand-dot {
+    fill: var(--text);
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+
+  .brand-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .brand-short {
+    display: none;
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(18px, 2.2vw, 32px);
+  }
+
+  .header-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 15px;
+    font-weight: 550;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--dur-hover) var(--ease-out);
+  }
+
+  .header-link:hover,
+  .header-link:focus-visible {
+    color: var(--text);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    cursor: pointer;
+    transition: background-color var(--dur-hover) var(--ease-out);
+  }
+
+  .menu-btn:hover {
+    background: rgba(147, 166, 214, 0.08);
+  }
+
+  .menu-icon {
+    position: relative;
+    width: 18px;
+    height: 12px;
+  }
+
+  .menu-icon::before,
+  .menu-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1.8px;
+    border-radius: 2px;
+    background: currentColor;
+    transition:
+      transform var(--dur-hover) var(--ease-out),
+      top var(--dur-hover) var(--ease-out);
+  }
+
+  .menu-icon::before {
+    top: 1px;
+  }
+
+  .menu-icon::after {
+    top: 9px;
+  }
+
+  .menu-btn[aria-expanded='true'] .menu-icon::before {
+    top: 5px;
+    transform: rotate(45deg);
+  }
+
+  .menu-btn[aria-expanded='true'] .menu-icon::after {
+    top: 5px;
+    transform: rotate(-45deg);
+  }
+
+  .menu-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: calc(100dvh - var(--header-h));
+    overflow-y: auto;
+    padding: var(--space-4) var(--gutter) var(--space-5);
+    background: #0a0d16;
+    border-bottom: 1px solid var(--border);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+      opacity var(--dur-hover) var(--ease-out),
+      transform var(--dur-hover) var(--ease-out),
+      visibility 0s linear var(--dur-hover);
+  }
+
+  .menu-panel[data-open='true'] {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--dur-hover) var(--ease-out),
+      transform var(--dur-hover) var(--ease-out),
+      visibility 0s;
+  }
+
+  .menu-nav {
+    display: grid;
+  }
+
+  .menu-link {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .menu-cta {
+    width: 100%;
+    margin-top: var(--space-5);
+  }
+
+  .menu-motion {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    margin-top: var(--space-4);
+    padding: 8px 14px;
+    background: rgba(147, 166, 214, 0.08);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-hover) var(--ease-out),
+      border-color var(--dur-hover) var(--ease-out),
+      color var(--dur-hover) var(--ease-out);
+  }
+
+  .menu-motion[aria-pressed='true'] {
+    color: var(--text);
+    border-color: var(--border-strong);
+    background: rgba(147, 166, 214, 0.16);
+  }
+
+  .menu-motion-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    transition:
+      background-color var(--dur-hover) var(--ease-out),
+      border-color var(--dur-hover) var(--ease-out);
+  }
+
+  .menu-motion[aria-pressed='true'] .menu-motion-dot {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  @media (max-width: 1023px) {
+    .header-nav,
+    .header-cta {
+      display: none;
+    }
+
+    .menu-btn {
+      display: inline-flex;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .menu-panel {
+      display: none;
+    }
+  }
+
+  @media (max-width: 479px) {
+    .brand-full {
+      display: none;
+    }
+
+    .brand-short {
+      display: inline;
+    }
+  }
+</style>
+
+<script>
+  import { track } from '../lib/events';
+  import {
+    MOTION_PREF_EVENT,
+    readManualReducedMotion,
+    setManualReducedMotion,
+  } from '../lib/motionPref';
+
+  const header = document.querySelector('[data-header]');
+
+  if (header) {
+    let scrolled = false;
+    const onScroll = () => {
+      const next = window.scrollY > 8;
+      if (next === scrolled) return;
+      scrolled = next;
+      header.setAttribute('data-scrolled', String(next));
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    const button = header.querySelector('[data-menu-btn]');
+    const panel = header.querySelector('[data-menu-panel]');
+
+    if (button && panel) {
+      let open = false;
+
+      const setOpen = (next, restoreFocus) => {
+        open = next;
+        button.setAttribute('aria-expanded', String(next));
+        button.setAttribute('aria-label', next ? 'Закрыть меню' : 'Открыть меню');
+        panel.setAttribute('data-open', String(next));
+        header.setAttribute('data-menu-open', String(next));
+        if (next) {
+          panel.removeAttribute('inert');
+          panel.querySelector('a, button')?.focus();
+        } else {
+          panel.setAttribute('inert', '');
+          if (restoreFocus) button.focus();
+        }
+      };
+
+      button.addEventListener('click', () => {
+        setOpen(!open, !open);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && open) setOpen(false, true);
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!open) return;
+        const target = event.target;
+        if (target instanceof Node && (panel.contains(target) || button.contains(target))) return;
+        setOpen(false, false);
+      });
+
+      panel.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => setOpen(false, true));
+      });
+
+      const desktop = window.matchMedia('(min-width: 1024px)');
+      desktop.addEventListener('change', (event) => {
+        if (event.matches && open) setOpen(false, false);
+      });
+    }
+
+    const motionToggles = header.querySelectorAll('[data-motion-toggle]');
+    const syncMotion = () => {
+      const reduced = readManualReducedMotion();
+      motionToggles.forEach((toggle) => toggle.setAttribute('aria-pressed', String(reduced)));
+    };
+    motionToggles.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const next = !readManualReducedMotion();
+        setManualReducedMotion(next);
+        if (next) track('motion_reduced', { placement: 'header' });
+      });
+    });
+    window.addEventListener(MOTION_PREF_EVENT, syncMotion);
+    syncMotion();
+  }
+</script>

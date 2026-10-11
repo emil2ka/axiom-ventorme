@@ -1,0 +1,225 @@
+---
+import { registrationUrl } from '../config/campaign';
+
+const reg = registrationUrl();
+---
+
+<footer class="site-footer" data-footer>
+  <div class="container">
+    <div class="footer-main">
+      <div class="footer-brand">
+        <svg class="footer-mark" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <path class="footer-line" d="M5 25 13 13 27 10" fill="none" />
+          <circle class="footer-halo" cx="13" cy="13" r="6" />
+          <circle class="footer-dot" cx="13" cy="13" r="2.4" />
+        </svg>
+        <div class="footer-brand-text">
+          <p class="footer-name">Выбери свой путь</p>
+          <p class="micro">Знакомство с Ventorme</p>
+        </div>
+      </div>
+      <nav class="footer-nav" aria-label="Разделы страницы">
+        <a href="#interests">Подборка</a>
+        <a href="#directions">Направления</a>
+        <a href="#ventorme">Что дальше</a>
+        <a href="#steps">Как это работает</a>
+        <a href="#faq">Вопросы</a>
+      </nav>
+      <div class="footer-cta">
+        <a
+          class="btn btn--secondary btn--sm"
+          href={reg}
+          data-reg-link
+          data-placement="footer">В Ventorme</a
+        >
+        <a class="link-arrow" href="#interests"
+          >Вернуться к интересам <span class="btn-arrow" aria-hidden="true">→</span></a
+        >
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="micro footer-note">
+        Страница команды Hacknext 2026. Регистрация и функции платформы находятся в Ventorme.
+      </p>
+      <button class="motion-toggle" type="button" aria-pressed="false" data-motion-toggle>
+        <span class="motion-dot" aria-hidden="true"></span>
+        Уменьшить анимацию
+      </button>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--border);
+    background: var(--bg-soft);
+    padding-block: clamp(40px, 6vw, 72px) clamp(28px, 4vw, 40px);
+  }
+
+  .footer-main {
+    display: grid;
+    gap: clamp(28px, 4vw, 40px);
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .footer-mark {
+    flex: none;
+  }
+
+  .footer-line {
+    stroke: var(--text);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.85;
+  }
+
+  .footer-halo {
+    fill: var(--accent);
+    opacity: 0.25;
+  }
+
+  .footer-dot {
+    fill: var(--text);
+  }
+
+  .footer-name {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 26px;
+  }
+
+  .footer-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 15px;
+    font-weight: 550;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--dur-hover) var(--ease-out);
+  }
+
+  .footer-nav a:hover,
+  .footer-nav a:focus-visible {
+    color: var(--text);
+  }
+
+  .footer-cta {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+  }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: clamp(28px, 4vw, 48px);
+  }
+
+  .footer-note {
+    max-width: 52ch;
+  }
+
+  .motion-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 8px 14px;
+    background: rgba(147, 166, 214, 0.08);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-hover) var(--ease-out),
+      border-color var(--dur-hover) var(--ease-out),
+      color var(--dur-hover) var(--ease-out);
+  }
+
+  .motion-toggle[aria-pressed='true'] {
+    color: var(--text);
+    border-color: var(--border-strong);
+    background: rgba(147, 166, 214, 0.16);
+  }
+
+  .motion-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    transition:
+      background-color var(--dur-hover) var(--ease-out),
+      border-color var(--dur-hover) var(--ease-out);
+  }
+
+  .motion-toggle[aria-pressed='true'] .motion-dot {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  @media (min-width: 900px) {
+    .footer-main {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto;
+      align-items: start;
+    }
+  }
+</style>
+
+<script>
+  import { track } from '../lib/events';
+  import {
+    MOTION_PREF_EVENT,
+    readManualReducedMotion,
+    setManualReducedMotion,
+  } from '../lib/motionPref';
+
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const link = target.closest('[data-reg-link]');
+    if (!link) return;
+    const placement = link.getAttribute('data-placement') ?? 'unknown';
+    track('registration_click', { placement });
+  });
+
+  const footer = document.querySelector('[data-footer]');
+
+  if (footer) {
+    const toggles = footer.querySelectorAll('[data-motion-toggle]');
+
+    const syncMotion = () => {
+      const reduced = readManualReducedMotion();
+      toggles.forEach((toggle) => toggle.setAttribute('aria-pressed', String(reduced)));
+    };
+
+    toggles.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const next = !readManualReducedMotion();
+        setManualReducedMotion(next);
+        if (next) track('motion_reduced', { placement: 'footer' });
+      });
+    });
+
+    window.addEventListener(MOTION_PREF_EVENT, syncMotion);
+    syncMotion();
+  }
+</script>

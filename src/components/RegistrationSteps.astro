@@ -1,0 +1,156 @@
+---
+import RegistrationLink from './RegistrationLink.astro';
+---
+
+<section id="steps" class="section steps" aria-labelledby="steps-title">
+  <div class="container">
+    <div class="section-head">
+      <h2 class="h2" id="steps-title">Вот что будет после перехода.</h2>
+    </div>
+    <ol class="steps-list">
+      <li class="step">
+        <span class="step-num" aria-hidden="true">01</span>
+        <div class="step-body">
+          <h3 class="step-title">Откроется Ventorme.</h3>
+          <p class="step-text">Ты перейдёшь на страницу регистрации платформы.</p>
+        </div>
+      </li>
+      <li class="step">
+        <span class="step-num" aria-hidden="true">02</span>
+        <div class="step-body">
+          <h3 class="step-title">Создай аккаунт.</h3>
+          <p class="step-text">Выбери доступный способ регистрации.</p>
+        </div>
+      </li>
+      <li class="step">
+        <span class="step-num" aria-hidden="true">03</span>
+        <div class="step-body">
+          <h3 class="step-title">Заверши начальную настройку.</h3>
+          <p class="step-text">
+            Ответь на вопросы онбординга и затем познакомься с возможностями продукта.
+          </p>
+        </div>
+      </li>
+    </ol>
+    <div class="steps-cta">
+      <RegistrationLink variant="primary" placement="steps" />
+      <p class="micro">Откроется Ventorme. Создай аккаунт и заверши начальную настройку.</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .steps-list {
+    --steps-gap: clamp(24px, 5vw, 40px);
+    position: relative;
+    display: grid;
+    gap: var(--steps-gap);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 4px 16px;
+  }
+
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19.5px;
+    top: 20px;
+    width: 1px;
+    height: calc(100% + var(--steps-gap));
+    background: var(--border);
+  }
+
+  .step-num {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .step-title {
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .step-text {
+    margin-top: 6px;
+    color: var(--text-muted);
+    max-width: 46ch;
+  }
+
+  .steps-cta {
+    display: grid;
+    justify-items: start;
+    gap: 12px;
+    margin-top: clamp(36px, 5vw, 56px);
+  }
+
+  @supports (animation-timeline: view()) {
+    .step-num {
+      animation: step-highlight linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 70%;
+    }
+  }
+
+  @keyframes step-highlight {
+    from {
+      border-color: var(--border);
+      color: var(--text-muted);
+      box-shadow: 0 0 0 0 rgba(139, 164, 255, 0);
+    }
+
+    to {
+      border-color: var(--accent);
+      color: var(--text);
+      box-shadow: 0 0 0 4px rgba(139, 164, 255, 0.14);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .steps-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .step {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .step:not(:last-child)::after {
+      left: 20px;
+      top: 19.5px;
+      width: calc(100% + var(--steps-gap));
+      height: 1px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step-num {
+      animation: none;
+    }
+  }
+
+  html[data-reduce-motion='true'] .step-num {
+    animation: none;
+  }
+</style>

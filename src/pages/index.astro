@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import Hero from '../components/Hero.astro';
+import InterestExperience from '../components/InterestExperience.tsx';
+import VentormeFeatures from '../components/VentormeFeatures.astro';
+import RegistrationSteps from '../components/RegistrationSteps.astro';
+import Faq from '../components/Faq.astro';
+import FinalScene from '../components/FinalScene.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+---
+
+<BaseLayout
+  title="Выбери свой путь — знакомство с Ventorme"
+  description="Посмотри направления по своим интересам и узнай, как Ventorme помогает с выбором профессии и поступлением."
+>
+  <SiteHeader />
+  <main id="main">
+    <Hero />
+    <InterestExperience client:visible uiVersion="1" />
+    <VentormeFeatures />
+    <RegistrationSteps />
+    <Faq />
+    <FinalScene />
+  </main>
+  <SiteFooter />
+</BaseLayout>

@@ -1,0 +1,21 @@
+---
+import { registrationUrl } from '../config/campaign';
+
+interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  placement: string;
+  label?: string;
+  class?: string;
+}
+
+const {
+  variant = 'primary',
+  placement,
+  label = 'Зарегистрироваться в Ventorme',
+  class: className = '',
+} = Astro.props;
+
+const classes = ['btn', `btn--${variant}`, className].filter(Boolean).join(' ');
+---
+
+<a class={classes} href={registrationUrl()} data-reg-link data-placement={placement}>{label}</a>

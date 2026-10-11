@@ -1,0 +1,188 @@
+---
+import HeroCompass from './hero/HeroCompass';
+import { registrationUrl } from '../config/campaign';
+
+const reg = registrationUrl();
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow hero-enter hero-enter--1">ПРОФЕССИЯ · УЧЁБА · СЛЕДУЮЩИЙ ШАГ</p>
+      <h1 class="h1 hero-title hero-enter hero-enter--2" id="hero-title">
+        <span class="hero-line">Твоё <span class="hero-accent">будущее</span></span>{' '}<span
+          class="hero-line">ещё не написано.</span
+        >
+      </h1>
+      <p class="lead hero-enter hero-enter--3">
+        Начни с того, что тебе интересно. Посмотри направления для знакомства и узнай, как
+        Ventorme помогает с выбором профессии и поступлением.
+      </p>
+      <div class="cta-row hero-cta hero-enter hero-enter--4">
+        <a class="btn btn--primary" href="#interests" data-cta="hero-primary"
+          >Посмотреть направления <span class="btn-arrow" aria-hidden="true">→</span></a
+        >
+        <a
+          class="btn btn--secondary"
+          href={reg}
+          data-reg-link
+          data-placement="hero">Зарегистрироваться в Ventorme</a
+        >
+      </div>
+      <p class="micro hero-micro hero-enter hero-enter--5">
+        Подборка на этой странице доступна без регистрации
+      </p>
+    </div>
+    <div class="hero-scene">
+      <HeroCompass client:visible />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    padding-top: calc(var(--header-h) + clamp(40px, 7vw, 96px));
+    padding-bottom: clamp(48px, 8vw, 112px);
+  }
+
+  .hero-grid {
+    display: grid;
+    gap: clamp(36px, 7vw, 64px);
+  }
+
+  .hero-title {
+    margin-top: 16px;
+    max-width: 15ch;
+  }
+
+  .hero-line {
+    display: inline;
+  }
+
+  .hero-accent {
+    background: linear-gradient(100deg, #f4f6fc 0%, #afc0ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  @supports not (-webkit-background-clip: text) {
+    .hero-accent {
+      color: var(--text);
+      background: none;
+    }
+  }
+
+  .hero-copy .lead {
+    margin-top: 20px;
+    max-width: 48ch;
+  }
+
+  .hero-cta {
+    margin-top: 28px;
+  }
+
+  .hero-micro {
+    margin-top: 14px;
+  }
+
+  .hero-scene {
+    width: 100%;
+    max-width: min(100%, 420px);
+    min-width: 0;
+    margin-inline: auto;
+  }
+
+  .hero-scene :global(astro-island) {
+    display: block;
+    width: 100%;
+  }
+
+  @media (min-width: 900px) {
+    .hero-title {
+      max-width: none;
+    }
+
+    .hero-line {
+      display: block;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: clamp(24px, 3vw, 48px);
+      align-items: center;
+    }
+
+    .hero-copy {
+      grid-column: 1 / span 7;
+    }
+
+    .hero-title {
+      font-size: clamp(56px, 6vw, 84px);
+    }
+
+    .hero-scene {
+      grid-column: 8 / span 5;
+      max-width: none;
+      margin-inline: 0 calc(var(--gutter) * -0.5);
+    }
+  }
+
+  .hero-enter {
+    animation: hero-enter 420ms var(--ease-out) both;
+  }
+
+  .hero-enter--1 {
+    animation-delay: 40ms;
+  }
+
+  .hero-enter--2 {
+    animation-delay: 130ms;
+  }
+
+  .hero-enter--3 {
+    animation-delay: 210ms;
+  }
+
+  .hero-enter--4 {
+    animation-delay: 290ms;
+  }
+
+  .hero-enter--5 {
+    animation-delay: 350ms;
+  }
+
+  @keyframes hero-enter {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-enter {
+      animation-delay: 0ms !important;
+    }
+  }
+
+  html[data-reduce-motion='true'] .hero-enter {
+    animation-delay: 0ms !important;
+  }
+</style>
+
+<script>
+  const primaryCta = document.querySelector('[data-cta="hero-primary"]');
+  const interestsHeading = document.getElementById('interests-heading');
+
+  primaryCta?.addEventListener('click', () => {
+    interestsHeading?.focus({ preventScroll: true });
+  });
+</script>
