@@ -65,7 +65,7 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
  const titleOpacity=frame.phase==='scene'?frame.copyOpacity:0;
  const actorWidth=(i:number)=>sceneLocations[i].width*(i===0?64/280:50/400);
  const busy=playback.current.isBusy()||performance.now()<navigationUntil.current;
- const heroSize=frame.hero.width??(frame.phase==='flight'?lerp(actorWidth(frame.fromIndex??0),actorWidth(frame.index),ease(frame.local)):actorWidth(frame.index));
+ const heroSize=(frame.hero.width??(frame.phase==='flight'?lerp(actorWidth(frame.fromIndex??0),actorWidth(frame.index),ease(frame.local)):actorWidth(frame.index)))*(1+.5*frame.mapLabels);
  const landing=frame.hero.landing,dustOpacity=landing>0?Math.sin(Math.PI*landing):0;
  return <div className={`scroll-landing ${reduced?'journey-quiet':''}`} data-phase={frame.phase} data-location={location.id} data-travel={travel.toFixed(3)} data-locked={busy&&!reduced}>
   <div className="journey-backdrop" aria-hidden="true"/>
