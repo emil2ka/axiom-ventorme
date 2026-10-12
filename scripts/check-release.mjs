@@ -1,6 +1,9 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
+// Use the same local campaign configuration as Astro; shell overrides still win.
+if (existsSync('.env')) process.loadEnvFile('.env');
+
 const mode = (process.env.PUBLIC_VENTORME_MODE ?? 'preview').trim().toLowerCase();
 const teamId = (process.env.PUBLIC_VENTORME_TEAM_ID ?? '').trim();
 const base = (process.env.PUBLIC_VENTORME_BASE ?? 'https://ventorme.ai/register').trim();

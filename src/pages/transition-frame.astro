@@ -9,8 +9,8 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fafbfc}.fr
 const worlds=['direction','university','preparation','funding','application'];
 const query=new URLSearchParams(location.search),requested=query.get('world')??'university';const key=worlds.includes(requested)?requested:'university';const inside=query.get('view')==='inside';
 const image=document.querySelector<HTMLImageElement>('.environment')!,frame=document.querySelector<HTMLElement>('.frame')!;
-image.src=inside?`/islands/${key}.png`:`/map-islands/${key}-polished.png`;
-function layout(){const width=inside?Math.min(innerWidth*1.4,innerHeight*2.6):Math.min(650,innerWidth*.85,innerHeight*.9);const height=width*(inside?941/1672:1),left=(innerWidth-width)/2,top=inside?innerHeight*.47-height*.4:(innerHeight-height)/2;Object.assign(image.style,{width:`${width}px`,height:`${height}px`,left:`${left}px`,top:`${top}px`});}
+image.src=inside?`/islands/${key}-refined.png`:`/map-islands/${key}-polished.png`;
+function layout(){const width=inside?Math.min(innerWidth*1.25,innerHeight*2,1600):Math.min(560,innerWidth*.65,innerHeight*.78);const height=width*(inside?941/1672:1),left=(innerWidth-width)/2,top=inside?innerHeight*.47-height*.4:(innerHeight-height)/2;Object.assign(image.style,{width:`${width}px`,height:`${height}px`,left:`${left}px`,top:`${top}px`});}
 image.decode().then(()=>{layout();frame.dataset.ready='true';});window.addEventListener('resize',layout);layout();
 </script>
 </body></html>

@@ -1,0 +1,98 @@
+.journey-intro .world-journey{height:240svh;min-height:0}
+.journey-intro .world-sticky{position:sticky;top:0;height:100svh;min-height:650px;padding:0}
+.journey-intro .pixel-header{position:fixed}
+.journey-intro .island,.journey-intro .home-island{left:var(--journey-x)!important;top:var(--journey-y)!important;width:var(--journey-width)!important}
+.journey-intro .master-art{position:static;display:block;width:100%;height:auto}
+.journey-intro .intro-copy{top:30%;width:41%}
+.journey-intro .intro-copy h1{white-space:normal;font-size:clamp(44px,4.35vw,76px);line-height:1.13;max-width:620px}
+.journey-intro .intro-copy .hero-description{max-width:390px;font-size:clamp(14px,1.22vw,18px)}
+.journey-intro .map-copy h2{font-size:clamp(45px,4.5vw,78px);line-height:1.16;letter-spacing:-.042em;font-weight:750;white-space:nowrap}
+.journey-intro .map-copy h2>span{color:#3b47ff}
+.journey-intro .home-label{top:91%}
+.journey-intro .intro-hint{position:absolute;bottom:25px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 18px;background:none;border:0;color:#6479a3;font-size:11px;z-index:20;min-height:44px}
+.intro-hint>span{font-size:24px;line-height:1;color:#3b47ff;animation:scroll-cue 2.3s ease-in-out infinite}
+.journey-intro .journey-status{bottom:-42px}
+.journey-intro.scene-active .world-journey{height:100svh}
+.journey-intro.scene-active .world-sticky{min-height:100svh}
+.journey-intro.scene-active .intro-hint{display:none}
+.journey-intro.scene-active .hero-copy{visibility:hidden}
+.journey-intro .hero-sprite{transform-origin:50% 90%;transition:scale .12s cubic-bezier(.22,1,.36,1);scale:1}
+.journey-intro .hero-sprite[data-pose=crouch]{scale:1.02 .98}
+.journey-intro .hero-sprite[data-pose=push]{scale:.98 1.025}
+.journey-intro .hero-sprite[data-pose=land]{scale:1.025 .98}
+.journey-intro.quiet .hero-sprite{scale:1}
+@keyframes scroll-cue{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
+@media(max-width:1100px) and (min-width:761px){.journey-intro .intro-copy h1{font-size:43px}.journey-intro .map-copy h2{font-size:42px}}
+@media(max-width:760px){
+ .journey-intro .world-sticky{height:100svh;min-height:740px}
+ .journey-intro .world-journey{height:245svh}
+ .journey-intro .world-stage{position:absolute;top:44%;left:0;right:auto;width:100%;height:53%;margin:0;overflow:visible}
+ .journey-intro .hero-copy{position:absolute;top:104px;left:0;width:100%;padding:0 24px}
+ .journey-intro .intro-copy{top:108px}
+ .journey-intro .intro-copy h1{font-size:clamp(32px,8.7vw,44px);max-width:390px;line-height:1.12}
+ .journey-intro .hero-description{font-size:13px;line-height:1.5;margin-top:14px;max-width:350px}
+ .journey-intro .hero-actions{margin-top:18px;gap:14px}
+ .journey-intro .map-copy h2{font-size:clamp(30px,7.8vw,39px);white-space:normal}
+ .journey-intro .intro-hint{bottom:10px;font-size:10px}
+ .journey-intro .journey-status{bottom:-8px;font-size:9px}
+ .journey-intro.scene-active .world-sticky{min-height:100svh}
+ .journey-intro.scene-active .world-journey{height:100svh}
+}
+
+/* A quiet interface leaves the island and traveler as the focus. */
+.journey-intro .pixel-header{justify-content:space-between;gap:20px;height:88px}
+.journey-intro .pixel-brand{font-size:28px;font-weight:800;letter-spacing:-.055em;background:none;padding:0;margin:0}
+.journey-intro .pixel-header nav{gap:12px;margin:0}
+.journey-intro .nav-link{border:1px solid #dce5f2;background:#ffffffd9;border-radius:14px;padding:12px 18px;min-height:44px;font-size:13px;color:#425a8a;transition:border-color .2s,background .2s}
+.journey-intro .nav-link:hover{border-color:#a8bcff;background:#fff;color:#3152ff}
+.journey-intro .motion-toggle{position:static;width:44px;height:44px;background:#fff;border:1px solid #dce5f2;font-size:16px}
+.journey-intro .pixel-primary{border-radius:14px;background:#3152ff;border-color:#3152ff;min-height:54px;font-size:14px;padding:15px 20px;gap:20px;box-shadow:0 6px 18px #3152ff14;transition:background .2s,box-shadow .2s}
+.journey-intro .pixel-primary:hover{background:#2341df;border-color:#2341df;box-shadow:0 8px 22px #3152ff25}
+.journey-intro .pixel-text-button{border:1px solid #dce5f2;border-radius:14px;background:#ffffffc9;min-height:54px;padding:14px 18px;color:#425a8a;font-size:13px;gap:16px}
+.journey-intro .pixel-text-button:hover{background:#fff;border-color:#a8bcff;color:#3152ff}
+.journey-intro .hero-actions{gap:12px}
+.journey-intro .map-guide{font-size:12px;line-height:1.5;color:#6b7d9e;margin-top:20px}
+.journey-intro .island-label{display:block;left:50%;top:94%;transform:translateX(-50%);opacity:1;background:#ffffffe6;border:1px solid #e3ebf6;border-radius:20px;font-size:12px;font-weight:500;padding:7px 12px;box-shadow:0 3px 12px #284b7706;transition:opacity .2s}
+.journey-intro[data-view=intro] .island-label,.journey-intro.scene-active .island-label{opacity:0;visibility:hidden}
+.journey-intro .unified-scene-title{top:106px;left:var(--gutter);width:30%;max-width:390px;padding:16px 18px;background:#fffffff5;border:1px solid #e3ebf5;border-radius:18px}
+.journey-intro.scene-active .pixel-brand{background:#fffffff5;padding:8px 12px;margin-left:-12px;border-radius:12px}
+.journey-intro .unified-scene-title>span{font-size:12px;letter-spacing:0;color:#60759b}
+.journey-intro .unified-scene-title h2{font-size:clamp(26px,2.6vw,38px);line-height:1.14;margin-top:10px}
+.journey-intro .unified-entry{display:flex;align-items:center;gap:10px;border:1px solid #dce5f2;background:#fff;color:#243660;border-radius:16px;padding:9px 16px 9px 10px;min-height:50px;font-size:13px;font-weight:600;box-shadow:0 8px 24px #2045781b;transition:border-color .2s,box-shadow .2s}
+.journey-intro .unified-entry:hover{border-color:#91a8ff;box-shadow:0 10px 28px #20457826}
+.journey-intro .unified-entry>span{position:static;transform:none;bottom:auto;left:auto;font-size:inherit;color:inherit}
+.journey-intro .unified-entry>.entry-action-icon{display:grid;place-items:center;width:30px;height:30px;flex-shrink:0;border-radius:10px;background:#3152ff;color:#fff;font-size:20px;font-weight:400}
+.journey-intro .entry-pin{position:fixed;transform:translate(-50%,-50%);z-index:20;width:72px;height:17px;border:2px solid #3152ff;border-radius:50%;box-shadow:0 0 0 4px #3152ff16;pointer-events:none}
+.journey-intro .unified-help{font-size:12px;border:1px solid #e1e9f4;border-radius:24px;background:#fffffff2;padding:12px 18px;color:#607398}
+.journey-intro .entry-panel{top:auto;bottom:86px;right:var(--gutter);left:auto;width:360px;padding:28px;border-radius:24px;background:#fff;border:1px solid #e0e8f4;box-shadow:0 18px 64px #25487520}
+.journey-intro .entry-kicker{font-size:11px;letter-spacing:0;color:#6b7d9e}
+.journey-intro .entry-panel h2{font-size:28px;line-height:1.15;max-width:290px;margin-top:16px}
+.journey-intro .entry-panel p{font-size:14px;line-height:1.65;margin-top:15px}
+.journey-intro .entry-panel .pixel-primary{width:100%;font-size:13px;min-height:50px;margin-top:24px;background:#3152ff;border-color:#3152ff}
+.journey-intro .entry-panel small{font-size:11px;margin-top:14px}
+.journey-intro .entry-close{top:12px;right:12px;width:36px;height:36px;border:1px solid #e1e9f4;border-radius:50%;background:#f8faff;display:grid;place-items:center;padding:0;font-size:23px}
+.journey-intro :is(button,a):focus-visible{outline:3px solid #91a8ff;outline-offset:5px}
+@media(max-width:1100px) and (min-width:761px){.journey-intro .pixel-primary,.journey-intro .pixel-text-button{font-size:12px;padding:13px 15px;min-height:48px}}
+@media(max-width:760px){
+ .journey-intro .pixel-header{height:76px;padding:0 24px;gap:12px}
+ .journey-intro .pixel-brand{font-size:24px}
+ .journey-intro .pixel-header nav{gap:8px}
+ .journey-intro .nav-link{font-size:11px;padding:10px 12px;border-radius:12px}
+ .journey-intro .motion-toggle{width:38px;height:38px;font-size:14px}
+ .journey-intro .pixel-primary,.journey-intro .pixel-text-button{font-size:12px;min-height:48px;padding:12px 14px;gap:12px;border-radius:13px}
+ .journey-intro .world-stage{top:52%;height:42%}
+ .journey-intro .island-label{font-size:10px;padding:5px 9px;top:93%}
+ .journey-intro .island-2 .island-label{left:95%}
+ .journey-intro .island-3 .island-label{left:62%}
+ .journey-intro .map-guide{font-size:11px;margin-top:15px}
+ .journey-intro .unified-scene-title{left:24px;top:100px;width:calc(100% - 48px);max-width:340px}
+ .journey-intro .unified-scene-title h2{font-size:29px;max-width:320px}
+ .journey-intro .unified-scene-title>span{font-size:11px}
+ .journey-intro .unified-entry{font-size:12px;min-height:46px;padding:8px 13px 8px 8px;gap:8px;border-radius:14px}
+ .journey-intro .unified-entry>.entry-action-icon{width:28px;height:28px;font-size:18px}
+ .journey-intro .entry-pin{width:56px;height:14px}
+ .journey-intro .unified-help{font-size:11px;padding:10px 15px;bottom:20px}
+ .journey-intro .entry-panel{left:16px;right:auto;top:auto;bottom:74px;width:calc(100% - 32px);max-width:none;padding:24px;border-radius:22px}
+ .journey-intro .entry-panel h2{font-size:25px}
+ .journey-intro .entry-panel p{font-size:13px}
+}
