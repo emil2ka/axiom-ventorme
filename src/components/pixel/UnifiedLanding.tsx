@@ -18,6 +18,7 @@ const sceneRatio=941/1672;
 export default function UnifiedLanding({registrationHref}:{registrationHref:string}){
  const [phase,setPhase]=useState<Phase>('map'),[active,setActive]=useState<number|null>(null),[scene,setScene]=useState(false),[box,setBox]=useState<Box|null>(null),[mode,setMode]=useState<CharacterMotion>('idle'),[facing,setFacing]=useState<Facing>('front'),[ready,setReady]=useState(false),[quiet,setQuiet]=useState(false),[hud,setHud]=useState<Point>({x:0,y:0}),[entered,setEntered]=useState(false),[mobile,setMobile]=useState(false),[mapVisible,setMapVisible]=useState(false),[introDone,setIntroDone]=useState(false);
  const fog=useMotionValue(0);
+ const [fogReveal,setFogReveal]=useState(false);
  const journeyRef=useRef<HTMLElement>(null);
  const groundPoint=useRef<readonly number[]>([50,64]);
  const cameraRef=useRef<HTMLDivElement>(null),stageRef=useRef<HTMLDivElement>(null),point=useRef<Point>({x:40,y:59}),alive=useRef(true),tokenRef=useRef(0),lock=useRef(false),location=useRef<number|'home'>('home'),scrollRef=useRef(0),sceneRef=useRef(false),activeRef=useRef<number|null>(null),phaseRef=useRef(phase);phaseRef.current=phase;activeRef.current=active;sceneRef.current=scene;
@@ -65,23 +66,25 @@ export default function UnifiedLanding({registrationHref}:{registrationHref:stri
   scrollProgress.set(1);smoothProgress.jump(1);blend.set(0);
   await nextFrame();const img=node(i)?.querySelector<HTMLImageElement>('.island-image');await img?.decode().catch(()=>{});if(!valid(t))return;
   await jump(surface(i),t,Math.max(.6,Math.min(1,worlds[i].w/40)),'back');if(!valid(t))return;location.current=i;
-  setPhase('zoom');
+  setPhase('zoom');setFogReveal(false);
   // Fully opaque fog is the boundary: never blend two different buildings.
-  await animate(fog,reduced?0:1,{duration:reduced?0:.72,ease:[.4,0,.2,1]});if(!valid(t))return;
+  await animate(fog,reduced?0:1,{duration:reduced?0:.72,ease:[.4,0,.2,1]});if(!valid(t))return;await pause(240);
   const b=stageRef.current!.getBoundingClientRect();scrollRef.current=scrollY;setBox({left:b.left,top:b.top,width:b.width,height:b.height});sceneRef.current=true;setScene(true);setFacing('back');
   await nextFrame();window.scrollTo({top:0,behavior:'instant'});blend.set(1);
   const target=fit(i),p=surface(i,sceneAnchor(i,paths[i].start));
   camera.set({...target,scale:target.scale*.97});player.set({left:`${p.x}%`,top:`${p.y}%`,scale:sceneActorScale(target.scale,paths[i].start[1])});
   await nextFrame();await nextFrame();if(!valid(t))return;
+  setFogReveal(true);await nextFrame();
   await Promise.all([camera.start({...target,transition:{duration:reduced?0:1.05,ease:[.22,1,.36,1]}}),animate(fog,0,{duration:reduced?0:.9,ease:[.4,0,.2,1]})]);
   await nextFrame();await nextFrame();if(!valid(t))return;groundPoint.current=paths[i].start;point.current=surface(i,sceneAnchor(i,paths[i].start));updateHud(i);setPhase('explore');lock.current=false;
  }
  async function back(){
-  if(lock.current||active===null)return;lock.current=true;const t=++tokenRef.current;setEntered(false);setPhase('return');
-  await animate(fog,reduced?0:1,{duration:reduced?0:.65,ease:[.4,0,.2,1]});if(!valid(t))return;
+  if(lock.current||active===null)return;lock.current=true;const t=++tokenRef.current;setEntered(false);setPhase('return');setFogReveal(false);
+  await animate(fog,reduced?0:1,{duration:reduced?0:.65,ease:[.4,0,.2,1]});if(!valid(t))return;await pause(240);
   camera.set({scale:1,x:0,y:0});blend.set(0);setScene(false);sceneRef.current=false;
   await nextFrame();window.scrollTo({top:mapScrollTop(),behavior:'instant'});setBox(null);await nextFrame();await nextFrame();
   const p=surface(active);point.current=p;player.set({left:`${p.x}%`,top:`${p.y}%`,scale:Math.max(.6,Math.min(1,worlds[active].w/40))});setFacing('front');
+  setFogReveal(true);await nextFrame();
   await animate(fog,0,{duration:reduced?0:.8,ease:[.4,0,.2,1]});if(!valid(t))return;
   await jump(surface('home'),t,1);if(!valid(t))return;location.current='home';setActive(null);setMode('idle');setFacing('front');setPhase('map');lock.current=false;
  }
@@ -104,7 +107,7 @@ export default function UnifiedLanding({registrationHref}:{registrationHref:stri
  const frozen:CSSProperties|undefined=box?{position:'fixed',left:box.left,top:box.top,width:box.width,height:box.height,right:'auto',margin:0,overflow:'visible'}:undefined;
  return <div className={`pixel-landing unified-landing journey-intro ${scene?'scene-active':''} ${phase!=='map'?'worlds-still':''} ${reduced?'quiet':''}`} data-phase={phase} data-view={scene?'island':introDone?'map':'intro'}>
   <StarSky/>
-  <PixelFog progress={fog}/>
+  <PixelFog progress={fog} revealing={fogReveal}/>
   <header className="pixel-header"><a className="pixel-brand" href="#main" onClick={e=>{if(scene){e.preventDefault();void back();}}}>ventorme</a><nav><button className="nav-link" disabled={busy} onClick={()=>scene?void back():void revealMap()}>{scene?'← Карта островов':'Карта островов'}</button><button className="motion-toggle" disabled={busy} onClick={toggle} aria-pressed={quiet} aria-label={quiet?'Включить анимации':'Уменьшить движение'}>{quiet?'▷':'Ⅱ'}</button></nav></header>
   <main id="main"><section className="world-journey" ref={journeyRef} aria-label="Мир Ventorme"><div className="world-sticky">
    <motion.div className="hero-copy intro-copy" style={{opacity:introOpacity}} aria-hidden={scene||mapVisible} inert={scene||mapVisible}><h1>Твой путь<br/>начинается<br/><span>с тебя.</span></h1><p className="hero-description">От первого выбора до поступления.

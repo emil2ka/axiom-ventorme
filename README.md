@@ -51,8 +51,8 @@ npm run dev -- stop
 - `src/components/pixel/unified.css`, `pixel.css` — интерфейс и адаптивность.
 - `public/map-islands/*-polished.png` — прозрачные спрайты карты с исправленными краями. Прежние SVG сохранены рядом.
 - `public/islands/*-refined.png` — сохранённые иллюстрации внутренних сцен.
-- `PixelFog.tsx` — 12 слоёв сгенерированных прозрачных облаков; Canvas гарантирует полное перекрытие перед сменой сцены.
-- `public/sky/pixel-cloud-v1.png` — исходное облако 2048 × 768, [промпт](docs/cloud-asset.md).
+- `PixelFog.tsx` — четыре рисунка облаков, 16 отдельных траекторий и детальное поле из мелких облаков для полного перекрытия; без цветной заливки.
+- `public/sky/pixel-cloud*.png` — четыре прозрачных рисунка, [промпты и происхождение](docs/cloud-asset.md).
 - `StarSky.tsx` — общий звёздный фон.
 - `public/characters/hero-atlas.png` — атлас персонажа: 6 столбцов × 4 ряда.
 - `src/config/campaign.ts` — ссылка регистрации и атрибуция команды.
