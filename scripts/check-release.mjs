@@ -69,6 +69,8 @@ for (const file of files) {
   if (PLACEHOLDER_RE.test(content)) placeholderFiles.push(file);
 }
 
+if (foundUrls.size === 0 && existsSync(dist)) errors.push('В dist/ не найдены ссылки регистрации — выпуск не готов');
+
 const normalize = (u) => u.replaceAll('&amp;', '&');
 const normalizedExpected = normalize(expected);
 let urlMatches = 0;

@@ -3,7 +3,7 @@ import {useReducedMotion} from 'motion/react';
 import HeroSprite from './HeroSprite';
 import {ScrollGestureGate} from './journeyInput';
 import NativeStation from './NativeStation';
-import {JourneyPlayback,introFrame,renderLocations,requestedScene} from './journeyPlayback';
+import {JourneyPlayback,introFrame,renderLocations,requestedScene,isCompactViewport} from './journeyPlayback';
 import {locations,sceneStart,FINAL_START,JOURNEY_END,INTRO_END,ease,lerp,clamp,type JourneyFrame} from './journeyModel';
 import './journey.css';
 
@@ -25,7 +25,8 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
    if(performance.now()>navigationUntil.current&&!playback.current.isBusy()&&requestedScene(raw)>playback.current.active+1){go(sceneStart(playback.current.active+1)+.36);return;}
    freezeAt.current=scrollY;target.current=raw;};
   const loop=(now:number)=>{const dt=Math.min(.08,(now-previous)/1000);previous=now;smoothInput.current=lerp(smoothInput.current,target.current,1-Math.exp(-dt/.08));if(Math.abs(target.current-smoothInput.current)<.0001)smoothInput.current=target.current;setTravel(smoothInput.current);const next=playback.current.update(smoothInput.current,dt,viewport.current.w,viewport.current.h);furthest.current=Math.max(furthest.current,playback.current.active);setFrame(next);raf=requestAnimationFrame(loop);};
-  update();raf=requestAnimationFrame(loop);addEventListener('scroll',update,{passive:true});addEventListener('resize',update);return()=>{cancelAnimationFrame(raf);removeEventListener('scroll',update);removeEventListener('resize',update);};
+  const resize=()=>{const element=root.current;if(element){const y=element.getBoundingClientRect().top+scrollY+Math.max(1,element.offsetHeight-innerHeight)*clamp(target.current/JOURNEY_END);navigationUntil.current=performance.now()+300;freezeAt.current=y;window.scrollTo({top:y,behavior:'instant'});}update();};
+  update();raf=requestAnimationFrame(loop);addEventListener('scroll',update,{passive:true});addEventListener('resize',resize);return()=>{cancelAnimationFrame(raf);removeEventListener('scroll',update);removeEventListener('resize',resize);};
  },[reduced]);
  function go(t:number){const element=root.current;if(!element){window.scrollTo({top:0,behavior:'instant'});return;}const y=element.getBoundingClientRect().top+scrollY+(element.offsetHeight-innerHeight)*clamp(t/JOURNEY_END);if(playback.current.isBusy())return;if(t===0){target.current=0;smoothInput.current=0;}navigationUntil.current=performance.now()+300;freezeAt.current=y;window.scrollTo({top:y,behavior:'instant'});}
  useEffect(()=>{
@@ -58,7 +59,7 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
   return()=>{removeEventListener('wheel',wheel);removeEventListener('keydown',keys);removeEventListener('touchstart',start);removeEventListener('touchmove',move);};
  },[reduced]);
  function toggle(){const q=!quiet;setQuiet(q);try{localStorage.setItem('vp:motion',q?'reduced':'full');}catch{}}
- const sceneLocations=renderLocations(frame,size.w,size.h),mobile=size.w<=760,k=size.w/frame.camera.width;
+ const sceneLocations=renderLocations(frame,size.w,size.h),mobile=isCompactViewport(size.w,size.h),k=size.w/frame.camera.width;
  const intro=frame.phase==='intro',final=frame.phase==='final',location=sceneLocations[frame.index];
  const entry=frame.phase==='flight'&&frame.fromIndex===0?ease(frame.local/.32):1;
  const introExpansion=frame.returning?1-ease(frame.local):intro?0:entry,introCopy=intro?frame.copyOpacity:0;
@@ -90,7 +91,7 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
        const opacity=intro?(i===0?1:frame.returning?.15+.85*(1-ease(frame.local/.6)):.15*(1-ease(frame.local/.8))):final?1:i===frame.index?entry:frame.phase==='flight'&&i===frame.fromIndex?1-ease((frame.local-.8)/.2)*(1-distantOpacity):frame.phase==='flight'?distantOpacity*(1-ease(frame.local/.25)):distantOpacity;
        return <div key={loc.id} className={`journey-island island-${loc.id}`} style={{left:x-width/2,top:y-height*loc.ground,width,height,zIndex:Math.round(y+700),opacity}} data-island={loc.id}>
         <img className="journey-island-art" src={loc.image} alt={loc.alt} width={1254} height={1254} draggable={false} fetchPriority={i===0?'high':'low'} decoding="async"/>
-        <span className="journey-location-label" style={{opacity:i===0?0:frame.mapLabels,top:'102%',fontSize:Math.min(mobile?40:14,Math.max(10,11/k))}}>{loc.name}</span>
+        <span className="journey-location-label" style={{opacity:i===0?0:frame.mapLabels,top:'102%',fontSize:mobile?10/k:Math.min(14,Math.max(10,11/k))}}>{mobile&&i>0?['Профессия','Вузы','Подготовка','Гранты','Подача'][i-1]:loc.name}</span>
         {i>0&&!intro&&!final&&(i===frame.index||i===frame.fromIndex)&&<div className="journey-action-layer" style={{left:'50%',top:`${loc.ground*100}%`}}><NativeStation location={{...loc,width}} progress={action} seconds={i===frame.index?playback.current.sceneSeconds:0}/></div>}
        </div>;
       })}
@@ -103,9 +104,9 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
     </div>
 
     <div className="journey-final-copy" style={{opacity:final?frame.copyOpacity:0,visibility:final?'visible':'hidden'}} inert={!final}>
-     <span className="journey-eyebrow">Маршрут пройден</span><h2>Теперь <em>твой ход.</em></h2><p>Пройди бесплатный мини-профтест в Ventorme.</p><a className="journey-cta" href={registrationHref}>Пройти профтест <span>↗</span></a><button className="journey-replay" disabled={busy} onClick={()=>go(0)}>Повторить путь <span>↺</span></button>
+     <span className="journey-eyebrow">Маршрут пройден</span><h2>Теперь <em>твой ход.</em></h2><p>Пройди бесплатный мини-профтест в Ventorme.</p><a className="journey-cta" href={registrationHref}>Пройти профтест <span>↗</span></a><button className="journey-replay" disabled={busy} onClick={()=>go(0)} aria-label="Повторить путь"><span className="replay-label-full">Повторить путь</span><span className="replay-label-mobile" aria-hidden="true">Ещё раз</span> <span>↺</span></button>
     </div>
-    <div className="journey-bottom" style={{opacity:intro?.65:1}}><nav className="journey-chapters" aria-label="Этапы поступления">{sceneLocations.slice(1).map((loc,i)=><button key={loc.id} disabled={busy||i+1>furthest.current} className={frame.index===i+1?'current':''} aria-current={frame.index===i+1?'step':undefined} onClick={()=>go(sceneStart(i+1)+.36)} aria-label={`${loc.name}. Перейти к сцене`}><span className="chapter-name">{loc.name}</span></button>)}</nav><span className="journey-scroll-hint">{busy?(frame.phase==='scene'?'Осматриваемся':'Герой в пути'):final?'Твой следующий шаг — Ventorme':'Листай дальше'} <span>{busy?'·':final?'↗':'↓'}</span></span></div>
+    <div className="journey-bottom" style={{opacity:intro?.65:1}}><nav className="journey-chapters" aria-label="Этапы поступления">{sceneLocations.slice(1).map((loc,i)=><button key={loc.id} disabled={busy||i+1>furthest.current} className={frame.index===i+1?'current':''} aria-current={frame.index===i+1?'step':undefined} onClick={()=>go(sceneStart(i+1)+.36)} aria-label={`${loc.name}. Перейти к сцене`}><span className="chapter-name chapter-name-full">{loc.name}</span><span className="chapter-name chapter-name-compact" aria-hidden="true">{['Профессия','Вузы','Подготовка','Гранты','Подача'][i]}</span></button>)}</nav><span className="journey-scroll-hint">{busy?(frame.phase==='scene'?'Осматриваемся':'Герой в пути'):final?'Твой следующий шаг — Ventorme':'Листай дальше'} <span>{busy?'·':final?'↗':'↓'}</span></span></div>
     <div className="journey-progress" aria-hidden="true"><span style={{transform:`scaleX(${final?1:travel/JOURNEY_END})`}}/></div>
    </div>
   </main>}

@@ -1,15 +1,17 @@
 import {locations as sourceLocations,clamp,ease,lerp,INTRO_END,FINAL_START,JOURNEY_END,FLIGHT_LENGTH,DWELL_LENGTH,sceneStart,facingFor,type Location,type JourneyFrame} from './journeyModel';
 
+export const isCompactViewport=(w:number,h:number)=>w<=760||(w<=1024&&h<=500);
+
 export function mapLocations(w:number,h:number):Location[]{
- const mobile=w<=760;
+ const mobile=isCompactViewport(w,h);
  // Original IslandPosition layout, measured in the same 1000-unit map plane.
  const coords=mobile?[
   [0,0,230],[-240,.0504*h*1000/w+106.2,430],[260,.0294*h*1000/w+137.1,500],
   [40,-.2016*h*1000/w+106.2,430],[-340,-.231*h*1000/w+47.9,280],[390,-.21*h*1000/w+50.7,280],
  ]:[[0,0,160],[-220,179,380],[330,123,520],[90,-269,345],[-200,-368,205],[450,-325,235]];
- return sourceLocations.map((loc,i)=>({...loc,image:i===0?loc.image:`/journey/${i===3?'library':loc.id}-balanced.png`,ratio:1,ground:i===0?.45:.62,x:coords[i][0],y:coords[i][1],width:coords[i][2]}));
+ return sourceLocations.map((loc,i)=>({...loc,image:i===0?loc.image:`/journey/${i===3?'library':loc.id}-balanced.webp`,ratio:1,ground:i===0?.45:.62,x:coords[i][0],y:coords[i][1],width:coords[i][2]}));
 }
-export function mapCamera(w:number,h:number){return w<=760?{x:40,y:-.272*h*1000/w-52.9,width:1000}:{x:-181.25,y:-.099*h*1562.5/w,width:1562.5};}
+export function mapCamera(w:number,h:number){return isCompactViewport(w,h)?{x:40,y:-.272*h*1000/w-52.9,width:1000}:{x:-181.25,y:-.099*h*1562.5/w,width:1562.5};}
 export function journeyLocations(w:number,h:number):Location[]{
  const coords=[[0,0],[-240,360],[200,740],[-220,1120],[180,1500],[-200,1880]];
  return mapLocations(w,h).map((loc,i)=>({...loc,x:coords[i][0],y:coords[i][1]}));
@@ -20,8 +22,11 @@ export function renderLocations(frame:JourneyFrame,w:number,h:number):Location[]
 }
 const cameraMix=(a:JourneyFrame['camera'],b:JourneyFrame['camera'],p:number)=>({x:lerp(a.x,b.x,p),y:lerp(a.y,b.y,p),width:lerp(a.width,b.width,p)});
 export function closeCamera(loc:Location,w:number,h:number){
- const mobile=w<=760,home=loc.id==='home',width=loc.width/(home?(mobile?.72:.42):(mobile?1.6:.78));
- const sx=mobile?.5:home?.73:.69,sy=mobile?.74:home?.61:.73;
+ const mobile=isCompactViewport(w,h),landscape=mobile&&w>h,home=loc.id==='home';
+ // Reserve room for the title and touch navigation on short phone screens.
+ const sceneScale=landscape?Math.min(.65,(h-80)/w):Math.min(1.6,Math.max(1,(h-260)/w));
+ const width=loc.width/(home?(mobile?(landscape?.34:h<700?.66:.72):.42):(mobile?sceneScale:.78));
+ const sx=landscape?.73:mobile?.5:home?.73:.69,sy=landscape?.64:mobile?(home&&h<620?.73:.70):home?.61:.73;
  return{x:loc.x-(sx-.5)*width,y:loc.y-(sy-.5)*h*width/w,width};
 }
 export function introFrame(raw:number,w:number,h:number):JourneyFrame{
@@ -62,7 +67,14 @@ export function requestedScene(raw:number){return raw<INTRO_END?0:Math.min(5,1+M
 export const HOP_SECONDS=1.85;
 export function finalCamera(w:number,h:number){
  const camera=mapCamera(w,h);
- return w<=760?{...camera,y:camera.y-25,width:1540}:{...camera,x:camera.x-50,y:camera.y+25,width:1740};
+ if(!isCompactViewport(w,h))return{...camera,x:camera.x-50,y:camera.y+25,width:1740};
+ const islands=mapLocations(w,h);
+ const top=Math.min(...islands.map(loc=>loc.y-loc.width*loc.ground));
+ const bottom=Math.max(...islands.map(loc=>loc.y+loc.width*(1-loc.ground)+42));
+ const landscape=w>h,areaTop=landscape?65:h<620?Math.min(295,h*.52):h<700?300:h*.49,areaBottom=landscape?h-90:h-135;
+ const left=Math.min(...islands.map(loc=>loc.x-loc.width/2)),right=Math.max(...islands.map(loc=>loc.x+loc.width/2));
+ const width=Math.max(1540,(bottom-top)*w/Math.max(100,areaBottom-areaTop),landscape?(right-left)/.52:0);
+ return{...camera,x:landscape?(left+right)/2-.23*width:camera.x,width,y:(top+bottom)/2-((areaTop+areaBottom)/2-h/2)*width/w};
 }
 /** Scroll requests a destination. A running hop always reaches its landing, even if scroll stops. */
 export class JourneyPlayback{

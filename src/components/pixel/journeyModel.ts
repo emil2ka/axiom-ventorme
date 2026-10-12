@@ -5,7 +5,7 @@ export type Location = {
  x:number; y:number; width:number; ratio:number; ground:number; action:'sign'|'compass'|'campus'|'book'|'grant'|'documents';
 };
 export const locations:Location[]=[
- {id:'home',name:'Начало',title:'Твой путь начинается с тебя.',copy:'Выбери профессию и найди свой вуз.',image:'/map-islands/home-polished.png',alt:'Стартовая площадка с синим указателем на зелёном парящем острове',x:0,y:0,width:280,ratio:1,ground:.45,action:'sign'},
+ {id:'home',name:'Начало',title:'Твой путь начинается с тебя.',copy:'Выбери профессию и найди свой вуз.',image:'/map-islands/home-polished.webp',alt:'Стартовая площадка с синим указателем на зелёном парящем острове',x:0,y:0,width:280,ratio:1,ground:.45,action:'sign'},
  {id:'careers',name:'Профессия',title:'Найди своё направление.',copy:'Начни с короткого профтеста.',image:'/journey/careers.png',alt:'Учебный павильон с компьютером, микроскопом и творческой мастерской',x:-430,y:160,width:400,ratio:941/1672,ground:.66,action:'compass'},
  {id:'university',name:'Университет',title:'Выбери свой вуз.',copy:'Сравни направления, страны и бюджет.',image:'/islands/university-refined.png',alt:'Белый университетский кампус с синими крышами, фонтаном и дорожкой к входу',x:450,y:70,width:440,ratio:941/1672,ground:.66,action:'campus'},
  {id:'preparation',name:'Подготовка',title:'Подготовься к цели.',copy:'Проверь уровень IELTS или SAT.',image:'/islands/preparation-refined.png',alt:'Кампусная библиотека с синей крышей, книжными полками и столом во дворе',x:50,y:-340,width:400,ratio:941/1672,ground:.65,action:'book'},

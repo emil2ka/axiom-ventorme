@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.12"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "astro dev",
@@ -12,7 +12,8 @@
     "preview": "astro preview",
     "test": "vitest run",
     "check:release": "node scripts/check-release.mjs",
-    "shots": "node scripts/screenshots.mjs"
+    "shots": "node scripts/screenshots.mjs",
+    "build:release": "tsc --noEmit && astro build && node scripts/check-release.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.1",

@@ -7,12 +7,12 @@ import actionMetadata from './hero-actions-meta.json';
 const backCenters=[137.5,135,129,133,121.5,118.5,138.5,135,129.5,132,123.5,121.5,141,134,126.5,128.5,128.5,119,133,132,133.5,126,125,124].map(v=>v/256);
 const backBaseline=[251,251,251,251,251,246,251,251,251,251,243,243,236,239,240,240,240,239,237,237,234,226,237,237].map(v=>v/256);
 const atlases={
- back:{src:'/characters/hero-atlas.png',columns:6,rows:4,centers:backCenters,baseline:backBaseline},
- frontSide:{src:'/characters/hero-front-side.png',...metadata['hero-front-side']},
- frontJump:{src:'/characters/hero-front-jump.png',...metadata['hero-front-jump']},
- walk:{src:'/journey/hero-walk-atlas.png',...walkMetadata},
- actions:{src:'/journey/hero-actions-v2.png',...actionMetadata['hero-actions-v2']},
- backJump:{src:'/journey/hero-back-jump-v2.png',...actionMetadata['hero-back-jump-v2']},
+ back:{src:'/characters/hero-atlas.webp',columns:6,rows:4,centers:backCenters,baseline:backBaseline},
+ frontSide:{src:'/characters/hero-front-side.webp',...metadata['hero-front-side']},
+ frontJump:{src:'/characters/hero-front-jump.webp',...metadata['hero-front-jump']},
+ walk:{src:'/journey/hero-walk-atlas.webp',...walkMetadata},
+ actions:{src:'/journey/hero-actions-v2.webp',...actionMetadata['hero-actions-v2']},
+ backJump:{src:'/journey/hero-back-jump-v2.webp',...actionMetadata['hero-back-jump-v2']},
 };
 
 export default function HeroSprite({mode='idle',facing='front',reduced=false,onReady,sampleTime}:{mode?:CharacterMotion;facing?:Facing;reduced?:boolean;onReady?:()=>void;sampleTime?:number}){
