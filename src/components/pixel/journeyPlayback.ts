@@ -4,8 +4,11 @@ export const isCompactViewport=(w:number,h:number)=>w<=760||(w<=1024&&h<=500);
 
 export function mapLocations(w:number,h:number):Location[]{
  const mobile=isCompactViewport(w,h);
- // Original IslandPosition layout, measured in the same 1000-unit map plane.
- const coords=mobile?[
+ // Keep the desktop map; portrait uses a compact orbit around the home island.
+ const coords=mobile&&w<=h?[
+  [0,0,230],[-260,260,430],[260,260,500],
+  [0,-350,430],[-380,-210,280],[380,-210,280],
+ ]:mobile?[
   [0,0,230],[-240,.0504*h*1000/w+106.2,430],[260,.0294*h*1000/w+137.1,500],
   [40,-.2016*h*1000/w+106.2,430],[-340,-.231*h*1000/w+47.9,280],[390,-.21*h*1000/w+50.7,280],
  ]:[[0,0,160],[-220,179,380],[330,123,520],[90,-269,345],[-200,-368,205],[450,-325,235]];
@@ -71,10 +74,10 @@ export function finalCamera(w:number,h:number){
  const islands=mapLocations(w,h);
  const top=Math.min(...islands.map(loc=>loc.y-loc.width*loc.ground));
  const bottom=Math.max(...islands.map(loc=>loc.y+loc.width*(1-loc.ground)+42));
- const landscape=w>h,areaTop=landscape?65:h<620?Math.min(295,h*.52):h<700?300:h*.49,areaBottom=landscape?h-90:h-135;
+ const landscape=w>h,areaTop=landscape?65:h<620?185:205,areaBottom=landscape?h-90:h-146;
  const left=Math.min(...islands.map(loc=>loc.x-loc.width/2)),right=Math.max(...islands.map(loc=>loc.x+loc.width/2));
- const width=Math.max(1540,(bottom-top)*w/Math.max(100,areaBottom-areaTop),landscape?(right-left)/.52:0);
- return{...camera,x:landscape?(left+right)/2-.23*width:camera.x,width,y:(top+bottom)/2-((areaTop+areaBottom)/2-h/2)*width/w};
+ const width=Math.max((bottom-top)*w/Math.max(100,areaBottom-areaTop),landscape?Math.max(1540,(right-left)/.52):(right-left)*w/(w-40));
+ return{...camera,x:landscape?(left+right)/2-.23*width:(left+right)/2,width,y:(top+bottom)/2-((areaTop+areaBottom)/2-h/2)*width/w};
 }
 /** Scroll requests a destination. A running hop always reaches its landing, even if scroll stops. */
 export class JourneyPlayback{
