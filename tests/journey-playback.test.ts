@@ -24,13 +24,19 @@ describe('complete scroll-triggered actions',()=>{
   expect(x(2)).toBeGreaterThan(x(0));expect(x(1)).toBeLessThan(x(0));expect(a[3].y).toBeLessThan(a[0].y);
   expect(a[2].width).toBeGreaterThan(a[4].width);expect(a[2].width).toBeGreaterThan(a[5].width);
  });
+ it('replays directly from the home island without jumping back to admissions',()=>{
+  const p=new JourneyPlayback();advance(p,FINAL_START+.1,9);expect(p.mapActor).toBe(0);
+  const mid=advance(p,0,.5);expect(mid.returning).toBe(true);expect(mid.hero.x).toBe(0);expect(mid.hero.z).toBe(0);
+  const end=advance(p,0,1);expect(p.active).toBe(0);expect(end.phase).toBe('intro');expect(p.isBusy()).toBe(false);
+ });
  it('a trigger range requests a destination, not an incomplete physics pose',()=>{expect(requestedScene(INTRO_END+.01)).toBe(1);});
  it('starts on the home island and descends before revealing the map only in the finale',()=>{
   const a=introFrame(0,1440,900),b=introFrame(INTRO_END-.01,1440,900),route=journeyLocations(1440,900);
   expect(b.camera.width/a.camera.width).toBeLessThan(1.1);expect(b.mapLabels).toBe(0);
   for(let i=1;i<route.length;i++)expect(route[i].y).toBeGreaterThan(route[i-1].y);
-  const p=new JourneyPlayback();const final=advance(p,FINAL_START+.1,6);expect(final.phase).toBe('final');expect(final.layout).toBe(0);
-  const reverse=advance(p,sceneStart(5),.4);expect(reverse.layout).toBeGreaterThan(0);expect(reverse.layout).toBeLessThan(1);
-  const close=advance(p,sceneStart(5),1);expect(close.phase).toBe('scene');expect(close.index).toBe(5);
+  const p=new JourneyPlayback();const final=advance(p,FINAL_START+.1,9);expect(final.phase).toBe('final');expect(final.layout).toBe(0);
+  expect(p.mapActor).toBe(0);expect(final.hero.x).toBe(0);expect(final.hero.y).toBe(0);
+  const reverse=advance(p,sceneStart(5),.8);expect(reverse.phase).toBe('final');expect(reverse.hero.z).toBeGreaterThan(0);
+  const close=advance(p,sceneStart(5),3);expect(close.phase).toBe('scene');expect(close.index).toBe(5);
  });
 });

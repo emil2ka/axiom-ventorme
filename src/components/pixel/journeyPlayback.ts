@@ -36,9 +36,9 @@ export function settledFrame(index:number,seconds:number,w:number,h:number):Jour
  const loc=journeyLocations(w,h)[index],point=stationPoint(loc),walk=clamp(seconds/.8),p=ease(walk),action=clamp((seconds-.8)/1.44),working=index!==0&&loc.action!=='campus';
  return{camera:closeCamera(loc,w,h),hero:{x:lerp(loc.x,point.x,p),y:lerp(loc.y,point.y,p),z:0,mode:walk<1?'walk':working?'interact':'idle',facing:walk<1?facingFor(point.x-loc.x,point.y-loc.y):loc.action==='compass'?'left':'back',sample:walk<1?seconds*1000:working?(seconds-.8)*1000:0,landing:0},index,phase:'scene',local:clamp(seconds/2.15),copyOpacity:ease(seconds/.28),mapLabels:0,action};
 }
-export function hopFrame(from:number,to:number,p:number,w:number,h:number,start:JourneyFrame,homeRaw=0):JourneyFrame{
- const locs=journeyLocations(w,h),dest=locs[to],f=clamp((p-.22)/.56),path=ease(f);
- const begin=start.hero,end={x:dest.x,y:dest.y},dx=end.x-begin.x,dy=end.y-begin.y;
+export function hopFrame(from:number,to:number,p:number,w:number,h:number,start:JourneyFrame,homeRaw=0,mapSpace=false):JourneyFrame{
+ const locs=mapSpace?mapLocations(w,h):journeyLocations(w,h),dest=locs[to],f=clamp((p-.22)/.56),path=ease(f);
+ const begin=start.hero,end=mapSpace&&to!==0?stationPoint(dest):{x:dest.x,y:dest.y},dx=end.x-begin.x,dy=end.y-begin.y;
  const descending=dy>0,distance=Math.hypot(dx,dy),arc=descending?Math.max(55,Math.min(105,distance*.14)):Math.max(90,Math.min(175,distance*.22));
  const hero:JourneyFrame['hero']={x:lerp(begin.x,end.x,path),y:lerp(begin.y,end.y,descending?f*f:path),z:f===0||f===1?0:Math.sin(Math.PI*f)*arc,mode:'idle',facing:descending&&Math.abs(dx)>dy*.7?(dx<0?'left':'right'):facingFor(dx,dy),sample:0,landing:0};
  if(p<.14){hero.mode='crouch';hero.sample=p/.14*320;}
@@ -60,12 +60,26 @@ export function hopFrame(from:number,to:number,p:number,w:number,h:number,start:
 }
 export function requestedScene(raw:number){return raw<INTRO_END?0:Math.min(5,1+Math.floor((raw-INTRO_END)/(FLIGHT_LENGTH+DWELL_LENGTH)));}
 export const HOP_SECONDS=1.85;
+export function finalCamera(w:number,h:number){
+ const camera=mapCamera(w,h);
+ return w<=760?{...camera,y:camera.y-25,width:1540}:{...camera,x:camera.x-50,y:camera.y+25,width:1740};
+}
 /** Scroll requests a destination. A running hop always reaches its landing, even if scroll stops. */
 export class JourneyPlayback{
  active=0;sceneSeconds=0;overview=0;run:null|{from:number;to:number;seconds:number;start:JourneyFrame}=null;
+ mapActor=5;mapRun:null|{from:number;to:number;seconds:number;start:JourneyFrame}=null;
+ homeReturn:null|{seconds:number;start:JourneyFrame}=null;
  last:JourneyFrame|null=null;
+ isBusy(){return !!this.run||!!this.mapRun||!!this.homeReturn||(this.overview===1&&this.mapActor===5)||(this.active>0&&this.sceneSeconds<2.25)||(this.overview>0&&this.overview<1);}
  update(raw:number,dt:number,w:number,h:number):JourneyFrame{
   raw=clamp(raw,0,JOURNEY_END);dt=clamp(dt,0,.08);const desired=requestedScene(raw);
+  if(desired===0&&this.overview===1&&this.mapActor===0&&!this.mapRun&&!this.homeReturn&&this.last)this.homeReturn={seconds:0,start:this.last};
+  if(this.homeReturn){
+   this.homeReturn.seconds+=dt;const p=clamp(this.homeReturn.seconds/1.15),dest=introFrame(0,w,h);
+   this.last={...dest,returning:true,layout:0,local:p,camera:cameraMix(this.homeReturn.start.camera,dest.camera,ease(p)),copyOpacity:ease((p-.3)/.7),mapLabels:1-ease(p/.35)};
+   if(p>=1){this.active=0;this.sceneSeconds=0;this.overview=0;this.mapActor=5;this.homeReturn=null;}
+   return this.last;
+  }
   if(this.run){
    this.run.seconds+=dt;
    const p=clamp(this.run.seconds/HOP_SECONDS);
@@ -77,12 +91,24 @@ export class JourneyPlayback{
   this.sceneSeconds+=dt;
   const current=this.active===0?introFrame(INTRO_END,w,h):settledFrame(this.active,this.sceneSeconds,w,h);
   const showOverview=raw>=FINAL_START&&this.active===5&&this.sceneSeconds>=2.25;
-  this.overview=clamp(this.overview+(showOverview?dt:-dt)/1.1);
+  if(this.overview===1&&!this.mapRun&&((showOverview&&this.mapActor===5)||(!showOverview&&this.mapActor===0))){
+   const from=this.mapActor,to=from===5?0:5,loc=mapLocations(w,h)[from],point=from===0?{x:loc.x,y:loc.y}:stationPoint(loc);
+   this.mapRun={from,to,seconds:0,start:{...current,camera:finalCamera(w,h),hero:{...current.hero,...point,z:0}}};
+  }
+  this.overview=clamp(this.overview+((showOverview||this.mapRun||this.mapActor===0)?dt:-dt)/1.1);
   if(this.overview>0){
    const p=ease(this.overview);
-   const camera=mapCamera(w,h),end=w<=760?{...camera,y:camera.y-50,width:1400}:{...camera,y:camera.y+40};
+   const end=finalCamera(w,h);
    const mapped=stationPoint(mapLocations(w,h)[5]);
-   this.last={...current,layout:1-p,camera:cameraMix(current.camera,end,p),phase:'final',local:p,copyOpacity:p,mapLabels:p,hero:{...current.hero,x:lerp(current.hero.x,mapped.x,p),y:lerp(current.hero.y,mapped.y,p),mode:'idle',facing:'front',sample:undefined}};return this.last;
+   let hero:JourneyFrame['hero']={...current.hero,x:lerp(current.hero.x,mapped.x,p),y:lerp(current.hero.y,mapped.y,p),mode:'idle',facing:'front',sample:undefined};
+   if(this.mapRun){
+    this.mapRun.seconds+=dt;const q=clamp(this.mapRun.seconds/HOP_SECONDS),locs=mapLocations(w,h);
+    const size=(i:number)=>locs[i].width*(i===0?64/280:50/400);
+    const hop=hopFrame(this.mapRun.from,this.mapRun.to,q,w,h,this.mapRun.start,0,true);
+    hero={...hop.hero,width:lerp(size(this.mapRun.from),size(this.mapRun.to),ease(q))};
+    if(q>=1){this.mapActor=this.mapRun.to;this.mapRun=null;}
+   }else if(this.mapActor===0){const home=mapLocations(w,h)[0];hero={...hero,x:home.x,y:home.y,width:home.width*64/280};}
+   this.last={...current,layout:1-p,camera:cameraMix(current.camera,end,p),phase:'final',local:p,copyOpacity:p,mapLabels:p,hero};return this.last;
   }
   if(desired!==this.active&&(this.active===0||this.sceneSeconds>=2.25)){
    this.run={from:this.active,to:desired,seconds:0,start:this.last?.phase==='final'?current:this.last??current};

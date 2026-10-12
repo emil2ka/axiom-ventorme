@@ -34,7 +34,7 @@ export default function HeroSprite({mode='idle',facing='front',reduced=false,onR
  let atlas=atlases.back,frame=0;
  const side=facing==='left'||facing==='right';
  if(mode==='interact'){
-  atlas=atlases.actions;frame=reduced?0:t<1440?Math.min(15,Math.floor(t/90)):6+Math.floor((t-1440)/180)%6;
+  atlas=atlases.actions;frame=reduced?0:Math.min(15,Math.floor(t/90));
  }else if(mode==='walk'&&(side||facing==='back')){
   atlas=atlases.walk;frame=(side?0:8)+(reduced?0:Math.floor(t/100)%8);
  }else if(mode==='idle'&&facing==='front'){
