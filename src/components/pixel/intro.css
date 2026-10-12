@@ -134,14 +134,11 @@
 .journey-intro .entry-panel .pixel-primary{background:#3152ff;color:#fff;border-color:#3152ff}
 .journey-intro .pixel-footer{background:none;font-size:11px}
 .journey-intro .pixel-footer>span{color:#e4f0ff}
+.pixel-fog{position:fixed;inset:0;width:100%;height:100%;z-index:500;pointer-events:none;visibility:hidden;image-rendering:pixelated}
 .fog-clouds{position:fixed;inset:0;z-index:501;pointer-events:none;overflow:hidden}
-.fog-cloud{position:absolute;width:var(--cloud-size);transform-origin:0 0;will-change:transform,opacity}
-.fog-cloud-art{width:100%;transform:translate(-50%,-50%)}
-.fog-cloud-art>img{display:block;width:100%;height:auto;image-rendering:auto}
-.fog-cloud-far{width:clamp(140px,var(--cloud-size),850px)}
-.fog-cloud-near{width:clamp(360px,var(--cloud-size),760px)}
-.fog-cloud-round.fog-cloud-near{width:clamp(280px,var(--cloud-size),460px)}
-@media(max-width:760px){.fog-cloud-near{width:clamp(340px,105vw,500px)}.fog-cloud-round.fog-cloud-near{width:clamp(220px,60vw,300px)}}
+.fog-cloud{position:absolute;width:clamp(600px,76vw,1400px);transform-origin:0 0;will-change:transform,opacity}
+.fog-cloud>img{display:block;width:100%;height:auto;transform:translate(-50%,-50%);image-rendering:pixelated}
+@media(max-width:760px){.fog-cloud{width:max(760px,100svh)}}
 @media(min-width:761px){
  .journey-intro .unified-scene-title{left:50%;transform:translateX(-50%);width:75%;max-width:700px;top:100px;text-align:center}
  .journey-intro .unified-scene-title h2{font-size:32px;margin-top:9px}
@@ -155,5 +152,3 @@
  .journey-intro .unified-scene-title h2{font-size:30px;max-width:270px}
  .journey-intro .unified-help{font-size:10px;max-width:85%;bottom:18px}
 }
-
-.cloud-cover{position:absolute;inset:0;width:100%;height:100%;background:none;pointer-events:none}
