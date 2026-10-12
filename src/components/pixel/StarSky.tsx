@@ -1,0 +1,2 @@
+const stars=Array.from({length:82},(_,i)=>({x:(i*67.73+9)%100,y:(i*43.19+4)%100,size:i%9===0?3:2,delay:-(i%13)*.43,duration:3.2+(i%7)*.61}));
+export default function StarSky(){return <div className="shared-sky" aria-hidden="true">{stars.map((s,i)=><i key={i} style={{left:`${s.x}%`,top:`${s.y}%`,width:s.size,height:s.size,animationDelay:`${s.delay}s`,animationDuration:`${s.duration}s`}}/>)}</div>;}

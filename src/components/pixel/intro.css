@@ -96,3 +96,59 @@
  .journey-intro .entry-panel h2{font-size:25px}
  .journey-intro .entry-panel p{font-size:13px}
 }
+
+/* Twilight blue is shared by the map and interactive scenes. */
+.journey-intro{background:#315b91;color:#f5f9ff}
+.journey-intro .shared-sky{background:radial-gradient(ellipse at 72% 44%,#78a9df 0%,#4d7eb7 42%,#2e5287 100%)}
+.shared-sky>i{position:absolute;border-radius:50%;background:#eff9ff;box-shadow:0 0 7px #c9e7ff85;opacity:.55;animation:sky-twinkle 5s ease-in-out infinite}
+@keyframes sky-twinkle{0%,100%{opacity:.3}50%{opacity:.85}}
+.journey-intro .hero-copy :is(h1,h2){color:#f5f9ff}
+.journey-intro .hero-copy :is(h1,h2)>span{color:#d2eaff}
+.journey-intro .pixel-brand{color:#f5f9ff}
+.journey-intro .hero-description,.journey-intro .map-guide,.journey-intro .home-label,.journey-intro .journey-status,.journey-intro .intro-hint{color:#dcecff}
+.journey-intro .intro-hint>span{color:#e3f3ff}
+.journey-intro .pixel-footer{border-color:#d0e8ff30;color:#dcecff}
+.journey-intro.scene-active .pixel-brand{color:#18255a}
+.journey-intro .world-camera{z-index:2}
+
+/* Fewer containers, clearer hierarchy, and one calm palette. */
+.journey-intro .pixel-header{height:92px}
+.journey-intro .nav-link{background:none;border-color:transparent;color:#edf6ff;padding:12px 4px;border-radius:0;font-weight:500}
+.journey-intro .nav-link:hover{background:none;border-color:transparent;color:#fff}
+.journey-intro .motion-toggle{background:#ffffff0b;border-color:#e5f3ff30;color:#edf6ff}
+.journey-intro .intro-copy h1{font-weight:650;letter-spacing:-.055em;line-height:1.06}
+.journey-intro .map-copy h2{font-weight:650;letter-spacing:-.052em;line-height:1.08}
+.journey-intro .hero-description{white-space:pre-line;color:#e4f0ff;line-height:1.65;font-weight:400;max-width:360px;margin-top:26px}
+.journey-intro .pixel-primary{background:#f4f9ff;border-color:#f4f9ff;color:#244974;box-shadow:0 4px 16px #162f4e14;font-weight:600;border-radius:12px}
+.journey-intro .pixel-primary:hover{background:#fff;border-color:#fff;box-shadow:0 8px 28px #162f4e25}
+.journey-intro .pixel-text-button{background:none;border-color:transparent;color:#eef7ff;border-radius:0;padding:14px 4px;font-weight:450}
+.journey-intro .pixel-text-button:hover{background:none;border-color:transparent;color:#fff}
+.journey-intro .map-guide{font-size:11px;opacity:.78;margin-top:28px}
+.journey-intro .island-label{background:none;border:0;box-shadow:none;color:#f4f9ff;font-size:12px;letter-spacing:.015em;padding:6px 0;text-shadow:0 1px 10px #1b3b6450}
+.journey-intro .home-label{font-size:10px;opacity:.75}
+.journey-intro .unified-scene-title{background:none;border:0;border-radius:0;padding:0;top:120px;color:#f4f9ff}
+.journey-intro .unified-scene-title>span{color:#d9eaff;font-size:11px}
+.journey-intro .unified-scene-title h2{font-weight:600;letter-spacing:-.045em;font-size:clamp(28px,3vw,43px);margin-top:14px;text-wrap:balance}
+.journey-intro.scene-active .pixel-brand{background:none;padding:0;margin:0;color:#f4f9ff;border-radius:0}
+.journey-intro .unified-help{background:none;border:0;color:#edf6ff;opacity:.75;font-size:11px;padding:8px 0}
+.journey-intro .entry-panel .pixel-primary{background:#3152ff;color:#fff;border-color:#3152ff}
+.journey-intro .pixel-footer{background:none;font-size:11px}
+.journey-intro .pixel-footer>span{color:#e4f0ff}
+.pixel-fog{position:fixed;inset:0;width:100%;height:100%;z-index:500;pointer-events:none;visibility:hidden;image-rendering:pixelated}
+.fog-clouds{position:fixed;inset:0;z-index:501;pointer-events:none;overflow:hidden}
+.fog-cloud{position:absolute;width:clamp(600px,76vw,1400px);transform-origin:0 0;will-change:transform,opacity}
+.fog-cloud>img{display:block;width:100%;height:auto;transform:translate(-50%,-50%);image-rendering:pixelated}
+@media(max-width:760px){.fog-cloud{width:max(760px,100svh)}}
+@media(min-width:761px){
+ .journey-intro .unified-scene-title{left:50%;transform:translateX(-50%);width:75%;max-width:700px;top:100px;text-align:center}
+ .journey-intro .unified-scene-title h2{font-size:32px;margin-top:9px}
+}
+@media(max-width:760px){
+ .journey-intro .pixel-header{height:76px}
+ .journey-intro .hero-description{font-size:13px;margin-top:20px;max-width:310px}
+ .journey-intro .nav-link{font-size:11px;padding:10px 2px}
+ .journey-intro .island-label{font-size:10px;padding:5px 0}
+ .journey-intro .unified-scene-title{top:106px;max-width:290px}
+ .journey-intro .unified-scene-title h2{font-size:30px;max-width:270px}
+ .journey-intro .unified-help{font-size:10px;max-width:85%;bottom:18px}
+}

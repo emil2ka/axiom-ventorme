@@ -2,6 +2,8 @@ import {useEffect,useRef,useState,type CSSProperties} from 'react';
 import {animate,motion,useAnimationControls,useReducedMotion,useMotionValue,useSpring,useTransform,useMotionValueEvent} from 'motion/react';
 import HeroSprite from './HeroSprite';
 import IslandPosition from './IslandPosition';
+import StarSky from './StarSky';
+import PixelFog from './PixelFog';
 import type {CharacterMotion,Facing} from './PixelCharacter';
 import {worlds} from './worlds';
 import './pixel.css';
@@ -15,6 +17,7 @@ const groundLimits=[72,73,73,72,72] as const;
 const sceneRatio=941/1672;
 export default function UnifiedLanding({registrationHref}:{registrationHref:string}){
  const [phase,setPhase]=useState<Phase>('map'),[active,setActive]=useState<number|null>(null),[scene,setScene]=useState(false),[box,setBox]=useState<Box|null>(null),[mode,setMode]=useState<CharacterMotion>('idle'),[facing,setFacing]=useState<Facing>('front'),[ready,setReady]=useState(false),[quiet,setQuiet]=useState(false),[hud,setHud]=useState<Point>({x:0,y:0}),[entered,setEntered]=useState(false),[mobile,setMobile]=useState(false),[mapVisible,setMapVisible]=useState(false),[introDone,setIntroDone]=useState(false);
+ const fog=useMotionValue(0);
  const journeyRef=useRef<HTMLElement>(null);
  const groundPoint=useRef<readonly number[]>([50,64]);
  const cameraRef=useRef<HTMLDivElement>(null),stageRef=useRef<HTMLDivElement>(null),point=useRef<Point>({x:40,y:59}),alive=useRef(true),tokenRef=useRef(0),lock=useRef(false),location=useRef<number|'home'>('home'),scrollRef=useRef(0),sceneRef=useRef(false),activeRef=useRef<number|null>(null),phaseRef=useRef(phase);phaseRef.current=phase;activeRef.current=active;sceneRef.current=scene;
@@ -42,7 +45,7 @@ export default function UnifiedLanding({registrationHref}:{registrationHref:stri
  function sceneOffset(i:number){return{x:mapAnchors[i][0]-paths[i].start[0],y:mapAnchors[i][1]-sceneRatio*paths[i].start[1]};}
  function sceneAnchor(i:number,a:readonly number[]){const offset=sceneOffset(i);return[offset.x+a[0],offset.y+sceneRatio*a[1]] as const;}
  function updateHud(i:number){const b=node(i)?.querySelector('.island-image')?.getBoundingClientRect();if(b)setHud({x:b.left+b.width*paths[i].entry[0]/100,y:b.top+b.height*paths[i].entry[1]/100});}
- function fit(i:number){const c=cameraRef.current,s=stageRef.current,n=node(i);if(!c||!s||!n)return{scale:1,x:0,y:0};const b=s.getBoundingClientRect(),d=surface(i,sceneAnchor(i,[50,40]));const width=innerWidth<=760?Math.min(innerWidth*3,innerHeight*1.8,1600):Math.min(innerWidth*1.25,innerHeight*2,1600);const scale=width/n.offsetWidth;return{scale,x:innerWidth*.5-b.left-scale*c.clientWidth*d.x/100,y:innerHeight*(innerWidth<=760?.58:.47)-b.top-scale*c.clientHeight*d.y/100};}
+ function fit(i:number){const c=cameraRef.current,s=stageRef.current,n=node(i);if(!c||!s||!n)return{scale:1,x:0,y:0};const b=s.getBoundingClientRect(),d=surface(i,sceneAnchor(i,[50,40]));const width=innerWidth<=760?Math.min(innerWidth*3,innerHeight*1.8,1600):Math.min(innerWidth*1.13,innerHeight*1.7,1536);const scale=width/n.offsetWidth;return{scale,x:innerWidth*.5-b.left-scale*c.clientWidth*d.x/100,y:innerHeight*(innerWidth<=760?.58:.56)-b.top-scale*c.clientHeight*d.y/100};}
  function sceneActorScale(zoom:number,y=64){const height=innerWidth<=760?Math.min(80,innerWidth*.17):110;const depth=Math.max(.7,Math.min(1.08,.7+(y-51)*.023));return height/(64*.75*zoom)*depth;}
  async function jump(end:Point,t:number,endScale=1,arrivalFacing:Facing='front'){
   const start=point.current,c=cameraRef.current;
@@ -62,14 +65,25 @@ export default function UnifiedLanding({registrationHref}:{registrationHref:stri
   scrollProgress.set(1);smoothProgress.jump(1);blend.set(0);
   await nextFrame();const img=node(i)?.querySelector<HTMLImageElement>('.island-image');await img?.decode().catch(()=>{});if(!valid(t))return;
   await jump(surface(i),t,Math.max(.6,Math.min(1,worlds[i].w/40)),'back');if(!valid(t))return;location.current=i;
-  const b=stageRef.current!.getBoundingClientRect();scrollRef.current=scrollY;setBox({left:b.left,top:b.top,width:b.width,height:b.height});sceneRef.current=true;setScene(true);setFacing('back');setPhase('zoom');await nextFrame();if(!valid(t))return;window.scrollTo({top:0,behavior:'instant'});
-  const target=fit(i);await Promise.all([camera.start({...target,transition:{duration:reduced?0:1.6,ease:[.22,1,.36,1]}}),player.start({left:`${surface(i,sceneAnchor(i,paths[i].start)).x}%`,top:`${surface(i,sceneAnchor(i,paths[i].start)).y}%`,scale:sceneActorScale(target.scale,paths[i].start[1]),transition:{duration:reduced?0:1.6,ease:[.22,1,.36,1]}}),animate(blend,1,{duration:reduced?0:.85,delay:reduced?0:.3,ease:'easeInOut'})]);
+  setPhase('zoom');
+  // Fully opaque fog is the boundary: never blend two different buildings.
+  await animate(fog,reduced?0:1,{duration:reduced?0:.72,ease:[.4,0,.2,1]});if(!valid(t))return;
+  const b=stageRef.current!.getBoundingClientRect();scrollRef.current=scrollY;setBox({left:b.left,top:b.top,width:b.width,height:b.height});sceneRef.current=true;setScene(true);setFacing('back');
+  await nextFrame();window.scrollTo({top:0,behavior:'instant'});blend.set(1);
+  const target=fit(i),p=surface(i,sceneAnchor(i,paths[i].start));
+  camera.set({...target,scale:target.scale*.97});player.set({left:`${p.x}%`,top:`${p.y}%`,scale:sceneActorScale(target.scale,paths[i].start[1])});
+  await nextFrame();await nextFrame();if(!valid(t))return;
+  await Promise.all([camera.start({...target,transition:{duration:reduced?0:1.05,ease:[.22,1,.36,1]}}),animate(fog,0,{duration:reduced?0:.9,ease:[.4,0,.2,1]})]);
   await nextFrame();await nextFrame();if(!valid(t))return;groundPoint.current=paths[i].start;point.current=surface(i,sceneAnchor(i,paths[i].start));updateHud(i);setPhase('explore');lock.current=false;
  }
  async function back(){
   if(lock.current||active===null)return;lock.current=true;const t=++tokenRef.current;setEntered(false);setPhase('return');
-  await Promise.all([camera.start({scale:1,x:0,y:0,transition:{duration:reduced?0:1.2,ease:[.22,1,.36,1]}}),player.start({left:`${surface(active).x}%`,top:`${surface(active).y}%`,scale:Math.max(.6,Math.min(1,worlds[active].w/40)),transition:{duration:reduced?0:1.2,ease:[.22,1,.36,1]}}),animate(blend,0,{duration:reduced?0:.85,ease:'easeInOut'})]);if(!valid(t))return;
-  point.current=surface(active);setScene(false);await nextFrame();window.scrollTo({top:mapScrollTop(),behavior:'instant'});setBox(null);await nextFrame();await jump(surface('home'),t,1);if(!valid(t))return;location.current='home';setActive(null);setMode('idle');setFacing('front');setPhase('map');lock.current=false;
+  await animate(fog,reduced?0:1,{duration:reduced?0:.65,ease:[.4,0,.2,1]});if(!valid(t))return;
+  camera.set({scale:1,x:0,y:0});blend.set(0);setScene(false);sceneRef.current=false;
+  await nextFrame();window.scrollTo({top:mapScrollTop(),behavior:'instant'});setBox(null);await nextFrame();await nextFrame();
+  const p=surface(active);point.current=p;player.set({left:`${p.x}%`,top:`${p.y}%`,scale:Math.max(.6,Math.min(1,worlds[active].w/40))});setFacing('front');
+  await animate(fog,0,{duration:reduced?0:.8,ease:[.4,0,.2,1]});if(!valid(t))return;
+  await jump(surface('home'),t,1);if(!valid(t))return;location.current='home';setActive(null);setMode('idle');setFacing('front');setPhase('map');lock.current=false;
  }
  async function walk(x:number,y:number,enter=false){
   if(lock.current||active===null||phase!=='explore')return;lock.current=true;setEntered(false);const t=++tokenRef.current,start=point.current,end=surface(active,sceneAnchor(active,[x,y]));setPhase('walk');setMode('walk');setFacing(end.y>start.y+1?'front':'back');
@@ -89,11 +103,13 @@ export default function UnifiedLanding({registrationHref}:{registrationHref:stri
  function toggle(){const next=!quiet;setQuiet(next);try{localStorage.setItem('vp:motion',next?'reduced':'full');}catch{}}
  const frozen:CSSProperties|undefined=box?{position:'fixed',left:box.left,top:box.top,width:box.width,height:box.height,right:'auto',margin:0,overflow:'visible'}:undefined;
  return <div className={`pixel-landing unified-landing journey-intro ${scene?'scene-active':''} ${phase!=='map'?'worlds-still':''} ${reduced?'quiet':''}`} data-phase={phase} data-view={scene?'island':introDone?'map':'intro'}>
-  <div className="shared-sky" aria-hidden="true"/>
+  <StarSky/>
+  <PixelFog progress={fog}/>
   <header className="pixel-header"><a className="pixel-brand" href="#main" onClick={e=>{if(scene){e.preventDefault();void back();}}}>ventorme</a><nav><button className="nav-link" disabled={busy} onClick={()=>scene?void back():void revealMap()}>{scene?'← Карта островов':'Карта островов'}</button><button className="motion-toggle" disabled={busy} onClick={toggle} aria-pressed={quiet} aria-label={quiet?'Включить анимации':'Уменьшить движение'}>{quiet?'▷':'Ⅱ'}</button></nav></header>
   <main id="main"><section className="world-journey" ref={journeyRef} aria-label="Мир Ventorme"><div className="world-sticky">
-   <motion.div className="hero-copy intro-copy" style={{opacity:introOpacity}} aria-hidden={scene||mapVisible} inert={scene||mapVisible}><h1>Твой путь<br/>начинается<br/><span>с тебя.</span></h1><p className="hero-description">Выбери направление, найди вуз и составь план поступления с Ventorme.</p><div className="hero-actions"><a className="pixel-primary" href={registrationHref}>Начать бесплатно <span>↗</span></a><button className="pixel-text-button" disabled={busy} onClick={()=>void revealMap()}>Открыть мой мир <span>↓</span></button></div></motion.div>
-   <motion.div className="hero-copy map-copy" style={{opacity:mapOpacity}} aria-hidden={scene||!mapVisible} inert={scene||!mapVisible}><h2>Куда поступать?<br/><span>Начнём с тебя.</span></h2><p className="hero-description">Ventorme — твой ИИ-помощник: выбрать направление и вуз, подготовиться к экзаменам и спланировать поступление.</p><div className="hero-actions"><a className="pixel-primary" href={registrationHref}>Начать бесплатно <span>↗</span></a><button className="pixel-text-button" disabled={busy} onClick={()=>void choose(1)}>Найти вуз <span>↗</span></button></div><p className="map-guide">Выбери остров, чтобы узнать больше.</p></motion.div>
+   <motion.div className="hero-copy intro-copy" style={{opacity:introOpacity}} aria-hidden={scene||mapVisible} inert={scene||mapVisible}><h1>Твой путь<br/>начинается<br/><span>с тебя.</span></h1><p className="hero-description">От первого выбора до поступления.
+Твой путь — с Ventorme.</p><div className="hero-actions"><a className="pixel-primary" href={registrationHref}>Начать бесплатно <span>↗</span></a><button className="pixel-text-button" disabled={busy} onClick={()=>void revealMap()}>Открыть мой мир <span>↓</span></button></div></motion.div>
+   <motion.div className="hero-copy map-copy" style={{opacity:mapOpacity}} aria-hidden={scene||!mapVisible} inert={scene||!mapVisible}><h2>Куда поступать?<br/><span>Начнём с тебя.</span></h2><p className="hero-description">Пять островов. Один твой путь. Выбери, с чего начнём.</p><div className="hero-actions"><a className="pixel-primary" href={registrationHref}>Начать бесплатно <span>↗</span></a><button className="pixel-text-button" disabled={busy} onClick={()=>void choose(1)}>Найти вуз <span>↗</span></button></div><p className="map-guide">Нажми на остров и исследуй его.</p></motion.div>
    <div className="world-stage" ref={stageRef} style={frozen}><motion.div className="world-camera" ref={cameraRef} animate={camera} initial={{scale:1,x:0,y:0}}>
     <IslandPosition index="home" progress={progress} mobile={mobile} hidden={scene} reduced={reduced}><img src="/map-islands/home-polished.png" alt="" className="home-art" draggable={false}/><motion.span className="home-label" style={{opacity:mapOpacity}}>Ты здесь</motion.span></IslandPosition>
     {worlds.map((w,i)=><IslandPosition index={i} progress={progress} mobile={mobile} key={w.key} hidden={scene&&active!==i} reduced={reduced}>
@@ -101,12 +117,13 @@ export default function UnifiedLanding({registrationHref}:{registrationHref:stri
      {scene&&active===i&&<button className="island-walk-ground" style={{clipPath:`polygon(${paths[i].entry[0]-4}% ${sceneAnchor(i,paths[i].entry)[1]}%,${paths[i].entry[0]+4}% ${sceneAnchor(i,paths[i].entry)[1]}%,70% ${sceneAnchor(i,[50,groundLimits[i]])[1]}%,30% ${sceneAnchor(i,[50,groundLimits[i]])[1]}%)`}} onClick={ground} disabled={busy||entered} aria-label="Пройти по дорожке"/>}
     </IslandPosition>)}
     <motion.div className={`actor-anchor ${phase==='flight'?'in-air':''} ${phase==='landing'?'landed':''}`} animate={player} initial={{left:'40%',top:'59%',scale:1}} aria-hidden="true"><div className="actor-shadow"/><div className="actor-body"><HeroSprite mode={mode} facing={facing} reduced={reduced} onReady={()=>setReady(true)}/></div><div className="landing-ring"/><div className="landing-dust">{[0,1,2,3].map(i=><i key={i}/>)}</div></motion.div>
-   </motion.div><motion.p className="journey-status" style={{opacity:mapOpacity}} role="status">{!scene&&phase!=='map'&&(phase==='crouch'?'Готовимся к прыжку…':phase==='flight'?'Прыжок…':phase==='landing'?'Приземление':'Открываем остров…')}</motion.p></div>
-   <motion.button className="intro-hint" style={{opacity:hintOpacity}} aria-hidden={scene||mapVisible} inert={scene||mapVisible} disabled={busy} onClick={()=>void revealMap()}><span>⌄</span>Листай вниз — откроем твой мир</motion.button>
-   {scene&&world&&<><motion.div className="unified-scene-title" initial={{opacity:0}} animate={{opacity:phase==='zoom'||entered?0:1}} transition={{duration:reduced?0:.35}}><span>{world.name}</span><h2>{world.title}</h2></motion.div>
-    {phase!=='zoom'&&phase!=='return'&&!entered&&<><span className="entry-pin" style={{left:hud.x,top:hud.y}} aria-hidden="true"/><button className="unified-entry" style={{left:hud.x,top:hud.y-(mobile?82:110)}} disabled={busy} onClick={()=>void walk(paths[active!].entry[0],paths[active!].entry[1],true)}><span className="entry-action-icon" aria-hidden="true">↗</span><span className="entry-action-label">{phase==='walk'?'Идём…':world.entry}</span></button></>}
-    <p className="unified-help" role="status">{phase==='walk'?'Герой идёт к выбранной точке':phase==='zoom'?'Приближаемся к острову':entered?'Продолжи на Ventorme':'Нажми на объект или на дорожку'}</p>
-    {entered&&<div className="entry-panel" role="dialog" aria-modal="false" aria-label={world.name}><button className="entry-close" onClick={()=>setEntered(false)} aria-label="Вернуться на остров">×</button><span className="entry-kicker">VENTORME / {world.name}</span><h2>{world.action}</h2><p>{world.copy}</p><a className="pixel-primary" href={registrationHref}>{world.cta} ↗</a><small>Продолжить на платформе Ventorme</small></div>}
+   </motion.div></div>
+   <motion.button className="intro-hint" style={{opacity:hintOpacity}} aria-hidden={scene||mapVisible} inert={scene||mapVisible} disabled={busy} onClick={()=>void revealMap()}><span>⌄</span>Листай, чтобы исследовать</motion.button>
+   {scene&&world&&<><motion.div className="unified-scene-title" initial={{opacity:0}} animate={{opacity:phase==='zoom'||phase==='return'||entered?0:1}} transition={{duration:reduced?0:.35}}><span>{world.name}</span><h2>{world.title}</h2></motion.div>
+    {phase!=='zoom'&&phase!=='return'&&!entered&&<><button className="unified-entry" style={{left:hud.x,top:hud.y-(mobile?82:110)}} disabled={busy} onClick={()=>void walk(paths[active!].entry[0],paths[active!].entry[1],true)}><span className="entry-action-icon" aria-hidden="true">↗</span><span className="entry-action-label">{phase==='walk'?'Идём…':world.entry}</span></button></>}
+    {phase==='explore'&&!entered&&<p className="unified-help">Выбери вход или точку на дорожке</p>}
+
+    {entered&&<div className="entry-panel" role="dialog" aria-modal="false" aria-label={world.name}><button className="entry-close" onClick={()=>setEntered(false)} aria-label="Вернуться на остров">×</button><span className="entry-kicker">{world.name}</span><h2>{world.action}</h2><p>{world.copy}</p><a className="pixel-primary" href={registrationHref}>{world.cta} ↗</a><small>Продолжить на платформе Ventorme</small></div>}
    </>}
   </div></section></main><footer className="pixel-footer"><span>VENTORME</span><p>Твой следующий шаг начинается с тебя.</p><a href="https://ventorme.ai/" target="_blank" rel="noopener noreferrer">О платформе ↗</a></footer>
  </div>;
