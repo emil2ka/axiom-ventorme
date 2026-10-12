@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-export type CharacterMotion = 'idle'|'crouch'|'push'|'air'|'fall'|'land'|'walk';
+export type CharacterMotion = 'idle'|'crouch'|'push'|'air'|'fall'|'land'|'walk'|'interact';
 export type Facing = 'back'|'front'|'left'|'right';
 const mix=(a:number,b:number,t:number)=>Math.round(a+(b-a)*Math.max(0,Math.min(1,t)));
 

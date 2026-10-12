@@ -1,0 +1,35 @@
+{
+  "generator": "Built-in ImageGen",
+  "assets": [
+    {
+      "key": "careers",
+      "ref": "islands/direction-refined.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent game island sprite for a pixel-art university admissions landing page. Keep the reference pixel-art style, crisp deliberate pixel clusters, blue roofs, white stone, soft warm light, lush but restrained green plants, blue-gray floating cliff. Front-facing three-quarter elevated game perspective, a complete isolated floating island, entire silhouette in frame with comfortable transparent margins, landscape 16:9. Central paved foreground plaza at image x50% y64% for a separate animated character; entrance around x50% y52%. No people, no sky, no background, no text, no UI, no glow outside edges, true alpha transparency. Avoid photographic rendering and excessive palatial complexity. Rework the referenced cozy workshop into a CAMPUS CAREER EXPLORATION PAVILION, educational and clearly academic. Keep its intimate scale, blue gabled roof, trees, lawn and cliff. Replace medieval navigation workshop clutter with 3 readable study areas under the open wing: a computer and drafting board, a small microscope on a desk, and an open sketchbook with colored pencils. A modest mortarboard-and-compass emblem above the central door. Simple campus noticeboard, benches, no fantasy compass shop. Keep a clear central walkable courtyard.",
+      "generated": "/Users/emil2ka/.codex/generated_images/01a12731-65e9-7522-8189-df08c54af414/exec-903c7d1e-b720-4de4-a42d-e6b9eab40ba9.png"
+    },
+    {
+      "key": "scholarships",
+      "ref": "islands/funding-refined.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent game island sprite for a pixel-art university admissions landing page. Keep the reference pixel-art style, crisp deliberate pixel clusters, blue roofs, white stone, soft warm light, lush but restrained green plants, blue-gray floating cliff. Front-facing three-quarter elevated game perspective, a complete isolated floating island, entire silhouette in frame with comfortable transparent margins, landscape 16:9. Central paved foreground plaza at image x50% y64% for a separate animated character; entrance around x50% y52%. No people, no sky, no background, no text, no UI, no glow outside edges, true alpha transparency. Avoid photographic rendering and excessive palatial complexity. Rework the glass building into a modest UNIVERSITY SCHOLARSHIP AND STUDENT SUPPORT CENTER. Lower compact white-stone academic pavilion with blue roof, central entrance and a clear graduation-cap emblem, two side display boards holding scholarship certificates with blue ribbons and blank paper fields, a small study desk visible through a window. Replace grand futuristic glass shell with restrained campus architecture, retain circular paved courtyard, grass, blue stone cliff, trees and overall footprint. Clearly student educational support, not bank or treasury. No coins or money piles.",
+      "generated": "/Users/emil2ka/.codex/generated_images/01a12731-65e9-7522-8189-df08c54af414/exec-77d4c296-81bf-4330-b9a5-dd0572ee4d6d.png"
+    },
+    {
+      "key": "admissions",
+      "ref": "islands/application-refined.png",
+      "prompt": "Use case: stylized-concept. Asset type: transparent game island sprite for a pixel-art university admissions landing page. Keep the reference pixel-art style, crisp deliberate pixel clusters, blue roofs, white stone, soft warm light, lush but restrained green plants, blue-gray floating cliff. Front-facing three-quarter elevated game perspective, a complete isolated floating island, entire silhouette in frame with comfortable transparent margins, landscape 16:9. Central paved foreground plaza at image x50% y64% for a separate animated character; entrance around x50% y52%. No people, no sky, no background, no text, no UI, no glow outside edges, true alpha transparency. Avoid photographic rendering and excessive palatial complexity. Rework the post office into a UNIVERSITY ADMISSIONS OFFICE in a small campus building. Preserve blue awning, low warm cream brick, proportions, foreground plaza and floating cliff. Remove red postbox and all envelope emblems. Replace sign emblem with a blue graduation-cap and document/checkmark crest. Open office wing shows tidy folders, application forms, a small laptop, stack of books and a bulletin board. Add a blue document drop pedestal in the courtyard, resembling an academic application station, not postal equipment. No mail symbols.",
+      "generated": "/Users/emil2ka/.codex/generated_images/01a12731-65e9-7522-8189-df08c54af414/exec-3da4f56f-709f-454e-8f16-189999bd04ef.png"
+    },
+    {
+      "key": "book-atlas",
+      "ref": "islands/preparation-refined.png",
+      "prompt": "Use case: stylized-concept. Asset type: animation sprite sheet. Reference is STYLE ONLY. Create EXACT regular 4 columns by 4 rows sprite atlas, 16 equally sized square cells, 1536 x1536 image. One isolated pixel-art royal blue and cream academic book in every cell, viewed from same slightly elevated front perspective, spine fixed at center x192 y255 inside each384cell. Book occupies around200px wide and160px high, with comfortable transparent margins. SAME book same camera same lighting same size every frame. Reading-order16 keyframes: frame0 closed horizontal book, frames1-5 cover smoothly opens fromclosedtoflat, frames6-11 one single cream page flips righttoleft progressively throughsix angles, frames12-15 open book with settled pages and tiny blue diagram lines. No readable words. Only book, no desk, hands, people, surroundings, cell borders, labels, shadow plates or colored background. Crisp polished pixel art matching reference, actual alpha transparency. Frames must never touch neighboring cells.",
+      "generated": "/Users/emil2ka/.codex/generated_images/01a12731-65e9-7522-8189-df08c54af414/exec-91a328a3-b1bb-48fd-b2a6-277ae358576b.png"
+    },
+    {
+      "key": "hero-walk-atlas",
+      "ref": "characters/hero-front-side.png",
+      "prompt": "Use case: identity-preserve. Asset type: animation sprite sheet. Preserve EXACT referenced student identity, brown textured hair, blue eyes, blue jacket, white shirt, navy trousers, lime green backpack, shoes, same polished pixel-art drawing. Create regular4columns x4rows atlas1536x1536, sixteen384x384cells, true transparentbackground. ONE fullbody character percell, centeredx192, groundbaseliney345, same height300px. FIRST TWO ROWS frames0-7: complete eight-frame side walking cycle facing RIGHT, with alternating foot contacts, passing poses and opposite arm swing. LAST TWO ROWS frames8-15: complete eight-frame BACK-facing walkingcycle with lime backpack centered. All grounded feet matchy345 except lifted swingfoot; constant identity and scale. No other characters, scenery, shadow, labels, gridlines. This is ONLY a clean animation atlas, not a collage of different character designs.",
+      "generated": "/Users/emil2ka/.codex/generated_images/01a12731-65e9-7522-8189-df08c54af414/exec-9b478aa5-23be-49c0-b88b-ed298491b7a6.png"
+    }
+  ]
+}
