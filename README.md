@@ -53,7 +53,7 @@ npm run dev -- --host 127.0.0.1 --port 4321
 
 ```sh
 npm run build
-npx --no-install tsc --noEmit
+npm run check:types
 npm test
 npm run check:release
 ```

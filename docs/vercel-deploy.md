@@ -20,7 +20,7 @@
 
 Для текущего конкурсного выпуска не нужно вручную заводить переменные окружения: публичные `competition` и `106` заданы в команде сборки. Это не секреты. База регистрации по умолчанию — `https://ventorme.ai/register`. Локальные `.env` исключены из Git и загрузки через CLI; никаких токенов для работы страницы не требуется.
 
-`build:release` сначала проверяет TypeScript, собирает сайт, затем проверяет ссылки в готовом `dist`. Ошибка атрибуции или отсутствие регистрационной ссылки останавливает выпуск. Ожидаемая ссылка: `https://ventorme.ai/register?utm_source=hacknext&utm_campaign=team-106`.
+`build:release` сначала запускает `astro sync`, чтобы создать типы Astro и Vite в чистой среде, затем проверяет TypeScript, собирает сайт, затем проверяет ссылки в готовом `dist`. Ошибка атрибуции или отсутствие регистрационной ссылки останавливает выпуск. Ожидаемая ссылка: `https://ventorme.ai/register?utm_source=hacknext&utm_campaign=team-106`.
 
 Адаптер Vercel и серверные функции не нужны: обе страницы статические. Файлы `/_astro/` имеют хеши и длительный кеш; рисунки и шрифты получают отдельные правила кеширования. `.vercel/` с привязкой аккаунта остаётся локальным.
 
@@ -29,7 +29,7 @@
 ```sh
 npm ci
 PUBLIC_VENTORME_MODE=competition PUBLIC_VENTORME_TEAM_ID=106 npm run build:release
-npx --no-install tsc --noEmit
+npm run check:types
 npm test
 npm run preview -- --host 127.0.0.1 --port 4322
 ```
@@ -39,3 +39,5 @@ npm run preview -- --host 127.0.0.1 --port 4322
 Выполнена чистая установка в отдельном каталоге без локального `.env` и сборка точной командой из `vercel.json`. Фактическая публикация в аккаунте Vercel в эту задачу не входила.
 
 Официальная документация: https://docs.astro.build/en/guides/deploy/vercel/ и https://vercel.com/docs/functions/runtimes/node-js/node-js-versions.
+
+Важно для CI: `.astro/` не хранится в Git. Запускай проверку типов через `npm run check:types`, чтобы генерация типов выполнялась перед `tsc`. Проверено в свежем архиве Git после `npm ci`, без предварительной сборки, `.astro/` и `.env`.
