@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {useReducedMotion} from 'motion/react';
 import HeroSprite from './HeroSprite';
+import JourneyAction from './JourneyAction';
 import {ScrollGestureGate} from './journeyInput';
 import NativeStation from './NativeStation';
 import {JourneyPlayback,introFrame,renderLocations,requestedScene,isCompactViewport} from './journeyPlayback';
@@ -10,7 +11,7 @@ import './journey.css';
 export default function ScrollJourney({registrationHref}:{registrationHref:string}){
  const root=useRef<HTMLElement>(null),[travel,setTravel]=useState(0),[size,setSize]=useState({w:1280,h:800}),[quiet,setQuiet]=useState(false),[ready,setReady]=useState(false),[headerOffset,setHeaderOffset]=useState(0);
  const systemQuiet=useReducedMotion(),reduced=quiet||!!systemQuiet;
- const target=useRef(0),smoothInput=useRef(0),viewport=useRef(size),playback=useRef(new JourneyPlayback());
+ const target=useRef(0),smoothInput=useRef(0),viewport=useRef(size),playback=useRef(new JourneyPlayback(true));
  const furthest=useRef(0),freezeAt=useRef(0),navigationUntil=useRef(0),gesture=useRef(new ScrollGestureGate());
  const [frame,setFrame]=useState<JourneyFrame>(()=>introFrame(0,1280,800));
  // Keep the running state while applying updated geometry during local hot reloads.
@@ -79,6 +80,7 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
     </div>
     <div className="journey-copy journey-scene-copy" style={{opacity:titleOpacity,visibility:titleOpacity>.01?'visible':'hidden'}} aria-hidden={titleOpacity<.1}>
      <span className="journey-eyebrow">{location.name}</span><h2>{location.title}</h2><p>{location.copy}</p>
+     {frame.phase==='scene'&&playback.current.sceneSeconds>=.8&&<JourneyAction key={location.id} location={location.id} running={playback.current.actionStarted&&playback.current.sceneSeconds<2.25} done={playback.current.actionStarted&&playback.current.sceneSeconds>=2.25} onActivate={()=>playback.current.startAction()}/>}
     </div>
     <div className="journey-world" aria-label="Пиксельный мир поступления">
      <div className="journey-plane" style={{transform:`translate(${size.w/2-frame.camera.x*k}px, ${size.h/2-frame.camera.y*k}px) scale(${k})`}}>
@@ -86,13 +88,13 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
       {sceneLocations.map((loc,i)=>{
        const skyX=mobile?[-110,110,0,-135,135]:[-100,20,-50,-150,90],skyY=mobile?[-255,-255,-360,-130,-130]:[-90,-112,-120,-80,-65];
        const expansion=i===0?1:lerp(mobile?.2:.13,1,introExpansion),x=i===0?loc.x:lerp(skyX[i-1],loc.x,introExpansion),y=i===0?loc.y:lerp(skyY[i-1],loc.y,introExpansion),width=loc.width*expansion,height=width*loc.ratio;
-       const action=i===frame.fromIndex&&frame.phase==='flight'?1:i===frame.index&&frame.phase!=='flight'?frame.action:0;
+       const action=i===frame.fromIndex&&frame.phase==='flight'?(playback.current.run?.start.action??0):i===frame.index&&frame.phase!=='flight'?frame.action:0;
        const distantOpacity=ease((frame.camera.width-700)/600);
        const opacity=intro?(i===0?1:frame.returning?.15+.85*(1-ease(frame.local/.6)):.15*(1-ease(frame.local/.8))):final?1:i===frame.index?entry:frame.phase==='flight'&&i===frame.fromIndex?1-ease((frame.local-.8)/.2)*(1-distantOpacity):frame.phase==='flight'?distantOpacity*(1-ease(frame.local/.25)):distantOpacity;
        return <div key={loc.id} className={`journey-island island-${loc.id}`} style={{left:x-width/2,top:y-height*loc.ground,width,height,zIndex:Math.round(y+700),opacity}} data-island={loc.id}>
         <img className="journey-island-art" src={loc.image} alt={loc.alt} width={1254} height={1254} draggable={false} fetchPriority={i===0?'high':'low'} decoding="async"/>
         <span className="journey-location-label" style={{opacity:i===0?0:frame.mapLabels,top:'102%',fontSize:mobile?11/k:Math.min(14,Math.max(10,11/k))}}>{mobile&&i>0?['Профессия','Вузы','Подготовка','Гранты','Подача'][i-1]:loc.name}</span>
-        {i>0&&!intro&&!final&&(i===frame.index||i===frame.fromIndex)&&<div className="journey-action-layer" style={{left:'50%',top:`${loc.ground*100}%`}}><NativeStation location={{...loc,width}} progress={action} seconds={i===frame.index?playback.current.sceneSeconds:0}/></div>}
+        {i>0&&!intro&&!final&&(i===frame.index||i===frame.fromIndex)&&<div className="journey-action-layer" style={{left:'50%',top:`${loc.ground*100}%`}}><NativeStation location={{...loc,width}} progress={action} seconds={i===frame.index&&playback.current.actionStarted?playback.current.sceneSeconds:0}/></div>}
        </div>;
       })}
       <div className="journey-ground-shadow" style={{left:frame.hero.x,top:frame.hero.y,opacity:Math.max(0,1-frame.hero.z/85),transform:`translate(-50%,-50%) scale(${1-frame.hero.z/310})`,zIndex:2999}}/>

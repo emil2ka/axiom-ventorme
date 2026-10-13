@@ -81,11 +81,15 @@ export function finalCamera(w:number,h:number){
 }
 /** Scroll requests a destination. A running hop always reaches its landing, even if scroll stops. */
 export class JourneyPlayback{
+ constructor(public manualActions=false){}
+ actionStarted=false;
+ startAction(){if(!this.manualActions||this.active===0||this.overview>0||this.isBusy())return false;this.actionStarted=true;this.sceneSeconds=.8;return true;}
+ readyToLeave(){return this.active===0||(this.manualActions&&!this.actionStarted?this.sceneSeconds>=.8:this.sceneSeconds>=2.25);}
  active=0;sceneSeconds=0;overview=0;run:null|{from:number;to:number;seconds:number;start:JourneyFrame}=null;
  mapActor=5;mapRun:null|{from:number;to:number;seconds:number;start:JourneyFrame}=null;
  homeReturn:null|{seconds:number;start:JourneyFrame}=null;
  last:JourneyFrame|null=null;
- isBusy(){return !!this.run||!!this.mapRun||!!this.homeReturn||(this.overview===1&&this.mapActor===5)||(this.active>0&&this.sceneSeconds<2.25)||(this.overview>0&&this.overview<1);}
+ isBusy(){return !!this.run||!!this.mapRun||!!this.homeReturn||(this.overview===1&&this.mapActor===5)||(this.active>0&&!this.readyToLeave())||(this.overview>0&&this.overview<1);}
  update(raw:number,dt:number,w:number,h:number):JourneyFrame{
   raw=clamp(raw,0,JOURNEY_END);dt=clamp(dt,0,.08);const desired=requestedScene(raw);
   if(desired===0&&this.overview===1&&this.mapActor===0&&!this.mapRun&&!this.homeReturn&&this.last)this.homeReturn={seconds:0,start:this.last};
@@ -99,13 +103,14 @@ export class JourneyPlayback{
    this.run.seconds+=dt;
    const p=clamp(this.run.seconds/HOP_SECONDS);
    this.last=hopFrame(this.run.from,this.run.to,p,w,h,this.run.start,raw);
-   if(p>=1){this.active=this.run.to;this.sceneSeconds=0;this.run=null;}
+   if(p>=1){this.active=this.run.to;this.sceneSeconds=0;this.actionStarted=false;this.run=null;}
    return this.last;
   }
   if(this.active===0&&desired===0){this.last=introFrame(raw,w,h);return this.last;}
-  this.sceneSeconds+=dt;
+  this.sceneSeconds=this.manualActions&&!this.actionStarted?Math.min(.8,this.sceneSeconds+dt):this.sceneSeconds+dt;
   const current=this.active===0?introFrame(INTRO_END,w,h):settledFrame(this.active,this.sceneSeconds,w,h);
-  const showOverview=raw>=FINAL_START&&this.active===5&&this.sceneSeconds>=2.25;
+  if(this.manualActions&&(this.sceneSeconds>=.8)&&(!this.actionStarted||this.sceneSeconds>=2.25)){current.hero.mode='idle';current.hero.sample=0;}
+  const showOverview=raw>=FINAL_START&&this.active===5&&this.readyToLeave();
   if(this.overview===1&&!this.mapRun&&((showOverview&&this.mapActor===5)||(!showOverview&&this.mapActor===0))){
    const from=this.mapActor,to=from===5?0:5,loc=mapLocations(w,h)[from],point=from===0?{x:loc.x,y:loc.y}:stationPoint(loc);
    this.mapRun={from,to,seconds:0,start:{...current,camera:finalCamera(w,h),hero:{...current.hero,...point,z:0}}};
@@ -125,7 +130,7 @@ export class JourneyPlayback{
    }else if(this.mapActor===0){const home=mapLocations(w,h)[0];hero={...hero,x:home.x,y:home.y,width:home.width*64/280};}
    this.last={...current,layout:1-p,camera:cameraMix(current.camera,end,p),phase:'final',local:p,copyOpacity:p,mapLabels:p,hero};return this.last;
   }
-  if(desired!==this.active&&(this.active===0||this.sceneSeconds>=2.25)){
+  if(desired!==this.active&&this.readyToLeave()){
    this.run={from:this.active,to:desired,seconds:0,start:this.last?.phase==='final'?current:this.last??current};
    this.last=hopFrame(this.active,desired,0,w,h,this.run.start,raw);return this.last;
   }
