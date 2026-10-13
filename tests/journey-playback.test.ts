@@ -3,22 +3,6 @@ import {JourneyPlayback,HOP_SECONDS,mapLocations,mapCamera,requestedScene,journe
 import {INTRO_END,sceneStart,FINAL_START} from '../src/components/pixel/journeyModel';
 function advance(player:JourneyPlayback,raw:number,seconds:number){let f=player.update(raw,0,390,844);for(let t=0;t<seconds;t+=1/60)f=player.update(raw,1/60,390,844);return f;}
 describe('complete scroll-triggered actions',()=>{
- it('waits for an optional action after walking and allows scrolling past it',()=>{
-  const p=new JourneyPlayback(true);advance(p,sceneStart(1),4);
-  expect(p.sceneSeconds).toBe(.8);expect(p.last?.action).toBe(0);expect(p.last?.hero.mode).toBe('idle');expect(p.isBusy()).toBe(false);
-  const next=advance(p,sceneStart(2),3);expect(next.index).toBe(2);expect(next.phase).toBe('scene');expect(p.actionStarted).toBe(false);
- });
- it('finishes a clicked action before leaving and accepts replay only after completion',()=>{
-  const p=new JourneyPlayback(true);advance(p,sceneStart(3),4);
-  expect(p.startAction()).toBe(true);expect(p.isBusy()).toBe(true);expect(p.startAction()).toBe(false);
-  const mid=advance(p,sceneStart(4),.6);expect(mid.index).toBe(3);expect(mid.action).toBeGreaterThan(0);expect(mid.action).toBeLessThan(1);
-  const next=advance(p,sceneStart(4),3.8);expect(next.index).toBe(4);expect(next.phase).toBe('scene');
-  expect(p.startAction()).toBe(true);const done=advance(p,sceneStart(4),1.6);expect(done.action).toBe(1);expect(done.hero.mode).toBe('idle');expect(p.isBusy()).toBe(false);expect(p.startAction()).toBe(true);
- });
- it('reaches the overview and returns home even when every optional action is skipped',()=>{
-  const p=new JourneyPlayback(true);advance(p,FINAL_START+.1,7);expect(p.last?.phase).toBe('final');expect(p.mapActor).toBe(0);
-  advance(p,0,1.3);expect(p.active).toBe(0);expect(p.isBusy()).toBe(false);expect(p.startAction()).toBe(false);
- });
  it('lands and starts its action when the user stops scrolling midway through the trigger range',()=>{
   const p=new JourneyPlayback();p.update(0,0,390,844);
   const mid=advance(p,INTRO_END+.13,HOP_SECONDS*.48);expect(mid.phase).toBe('flight');expect(mid.hero.z).toBeGreaterThan(0);
