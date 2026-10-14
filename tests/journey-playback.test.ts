@@ -18,6 +18,24 @@ describe('complete scroll-triggered actions',()=>{
   const p=new JourneyPlayback();p.update(0,0,390,844);advance(p,sceneStart(2),4);
   const back=advance(p,0,4);expect(back.phase).toBe('intro');expect(back.hero.z).toBe(0);expect(p.active).toBe(0);
  });
+ it('lowers the thinking hand on the university island before starting the next jump',()=>{
+  const p=new JourneyPlayback(),thinking=advance(p,sceneStart(2),6);
+  const leaving=advance(p,sceneStart(3),.35);
+  expect(leaving.index).toBe(2);expect(leaving.phase).toBe('scene');
+  expect(leaving.universityDeparture).toBeGreaterThan(0);expect(leaving.universityDeparture).toBeLessThan(1);
+  expect(leaving.hero.x).toBe(thinking.hero.x);expect(leaving.hero.y).toBe(thinking.hero.y);expect(leaving.hero.z).toBe(0);
+  expect(p.run).toBeNull();expect(p.isBusy()).toBe(true);
+  const landed=advance(p,sceneStart(3),HOP_SECONDS+1.5);
+  expect(landed.index).toBe(3);expect(landed.phase).toBe('scene');expect(landed.hero.z).toBe(0);
+ });
+ it('starts the university thinking clock only after its sprite sheets finish loading',()=>{
+  const p=new JourneyPlayback(false),waiting=advance(p,sceneStart(2),8);
+  expect(waiting.index).toBe(2);expect(waiting.phase).toBe('scene');expect(waiting.hero.mode).toBe('idle');
+  expect(p.sceneSeconds).toBeCloseTo(.8);expect(p.isBusy()).toBe(true);
+  p.universityAssetsReady=true;
+  const ready=advance(p,sceneStart(2),2.5);
+  expect(ready.index).toBe(2);expect(ready.phase).toBe('scene');expect(p.isBusy()).toBe(false);
+ });
  it('keeps the old map placement: campus right, library above, two small upper corners',()=>{
   const a=mapLocations(1440,900),c=mapCamera(1440,900),k=1440/c.width;
   const x=(i:number)=>720+(a[i].x-c.x)*k;

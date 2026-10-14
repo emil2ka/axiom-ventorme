@@ -4,7 +4,7 @@ import metadata from './station-meta.json';
 
 /** Furniture and its moving item share a pixel-art atlas, light and foot anchor. */
 export default function NativeStation({location,progress,seconds}:{location:Location;progress:number;seconds:number}){
- if(location.id==='home')return null;
+ if(location.id==='home'||location.id==='university')return null;
  const name=(location.id==='preparation'?'library':location.id) as keyof typeof metadata;
  const fountain=location.id==='university';
  const frame=fountain?Math.floor(seconds*12)%16:progress<1?Math.floor(clamp(progress)*15):location.action==='book'?8+Math.floor(seconds*5)%8:15;

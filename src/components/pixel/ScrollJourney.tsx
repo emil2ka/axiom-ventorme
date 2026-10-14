@@ -10,7 +10,7 @@ import './journey.css';
 export default function ScrollJourney({registrationHref}:{registrationHref:string}){
  const root=useRef<HTMLElement>(null),[travel,setTravel]=useState(0),[size,setSize]=useState({w:1280,h:800}),[quiet,setQuiet]=useState(false),[ready,setReady]=useState(false),[headerOffset,setHeaderOffset]=useState(0);
  const systemQuiet=useReducedMotion(),reduced=quiet||!!systemQuiet;
- const target=useRef(0),smoothInput=useRef(0),viewport=useRef(size),playback=useRef(new JourneyPlayback());
+ const target=useRef(0),smoothInput=useRef(0),viewport=useRef(size),playback=useRef(new JourneyPlayback(false));
  const furthest=useRef(0),freezeAt=useRef(0),navigationUntil=useRef(0),gesture=useRef(new ScrollGestureGate());
  const [frame,setFrame]=useState<JourneyFrame>(()=>introFrame(0,1280,800));
  // Keep the running state while applying updated geometry during local hot reloads.
@@ -64,7 +64,8 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
  const entry=frame.phase==='flight'&&frame.fromIndex===0?ease(frame.local/.32):1;
  const introExpansion=frame.returning?1-ease(frame.local):intro?0:entry,introCopy=intro?frame.copyOpacity:0;
  const titleOpacity=frame.phase==='scene'?frame.copyOpacity:0;
- const actorWidth=(i:number)=>sceneLocations[i].width*(i===0?64/280:50/400);
+ const actorWidth=(i:number)=>sceneLocations[i].width*(i===0?64/280:sceneLocations[i].id==='university'?60/400:50/400);
+ const universityThinking=frame.phase==='scene'&&location.id==='university'&&frame.hero.mode==='idle';
  const busy=playback.current.isBusy()||performance.now()<navigationUntil.current;
  const heroSize=(frame.hero.width??(frame.phase==='flight'?lerp(actorWidth(frame.fromIndex??0),actorWidth(frame.index),ease(frame.local)):actorWidth(frame.index)))*(1+.5*frame.mapLabels);
  const landing=frame.hero.landing,dustOpacity=landing>0?Math.sin(Math.PI*landing):0;
@@ -87,7 +88,7 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
        const skyX=mobile?[-110,110,0,-135,135]:[-100,20,-50,-150,90],skyY=mobile?[-255,-255,-360,-130,-130]:[-90,-112,-120,-80,-65];
        const expansion=i===0?1:lerp(mobile?.2:.13,1,introExpansion),x=i===0?loc.x:lerp(skyX[i-1],loc.x,introExpansion),y=i===0?loc.y:lerp(skyY[i-1],loc.y,introExpansion),width=loc.width*expansion,height=width*loc.ratio;
        const action=i===frame.fromIndex&&frame.phase==='flight'?1:i===frame.index&&frame.phase!=='flight'?frame.action:0;
-       const distantOpacity=ease((frame.camera.width-700)/600);
+       const distantOpacity=frame.phase==='scene'&&location.id==='university'?0:ease((frame.camera.width-700)/600);
        const opacity=intro?(i===0?1:frame.returning?.15+.85*(1-ease(frame.local/.6)):.15*(1-ease(frame.local/.8))):final?1:i===frame.index?entry:frame.phase==='flight'&&i===frame.fromIndex?1-ease((frame.local-.8)/.2)*(1-distantOpacity):frame.phase==='flight'?distantOpacity*(1-ease(frame.local/.25)):distantOpacity;
        return <div key={loc.id} className={`journey-island island-${loc.id}`} style={{left:x-width/2,top:y-height*loc.ground,width,height,zIndex:Math.round(y+700),opacity}} data-island={loc.id}>
         <img className="journey-island-art" src={loc.image} alt={loc.alt} width={1254} height={1254} draggable={false} fetchPriority={i===0?'high':'low'} decoding="async"/>
@@ -96,8 +97,8 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
        </div>;
       })}
       <div className="journey-ground-shadow" style={{left:frame.hero.x,top:frame.hero.y,opacity:Math.max(0,1-frame.hero.z/85),transform:`translate(-50%,-50%) scale(${1-frame.hero.z/310})`,zIndex:2999}}/>
-      <div className="journey-actor" style={{left:frame.hero.x,top:frame.hero.y-frame.hero.z,zIndex:3000,width:heroSize,height:heroSize,opacity:ready?1:0}} data-pose={frame.hero.mode} data-facing={frame.hero.facing}>
-       <div className="journey-actor-body"><HeroSprite mode={frame.hero.mode} facing={frame.hero.facing} sampleTime={frame.hero.sample} onReady={()=>setReady(true)}/></div>
+      <div className="journey-actor" style={{left:frame.hero.x,top:frame.hero.y-frame.hero.z,zIndex:3000,width:heroSize,height:heroSize,opacity:ready?1:0}} data-pose={frame.hero.mode} data-facing={frame.hero.facing} data-thinking={universityThinking||undefined}>
+       <div className="journey-actor-body"><HeroSprite mode={frame.hero.mode} facing={frame.hero.facing} thinking={universityThinking} thinkingDeparture={frame.universityDeparture} sampleTime={universityThinking?Math.max(0,playback.current.sceneSeconds-.8)*1000:frame.hero.sample} onReady={()=>setReady(true)} onThinkingAssetsReady={()=>{playback.current.universityAssetsReady=true;}}/></div>
       </div>
       <div className="journey-impact" style={{left:frame.hero.x,top:frame.hero.y,zIndex:3001,opacity:dustOpacity,transform:`translate(-50%,-50%) scale(${.5+landing})`}}>{[-1,1].map(side=><i key={side} style={{transform:`translate(${side*landing*30}px,${-Math.sin(landing*Math.PI)*13}px)`}}/>)}</div>
      </div>

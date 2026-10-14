@@ -1,4 +1,5 @@
 import {locations as sourceLocations,clamp,ease,lerp,INTRO_END,FINAL_START,JOURNEY_END,FLIGHT_LENGTH,DWELL_LENGTH,sceneStart,facingFor,type Location,type JourneyFrame} from './journeyModel';
+import {UNIVERSITY_EXIT_SECONDS,UNIVERSITY_SCENE_SECONDS} from './universityAnimation';
 
 export const isCompactViewport=(w:number,h:number)=>w<=760||(w<=1024&&h<=500);
 
@@ -12,7 +13,7 @@ export function mapLocations(w:number,h:number):Location[]{
   [0,0,230],[-240,.0504*h*1000/w+106.2,430],[260,.0294*h*1000/w+137.1,500],
   [40,-.2016*h*1000/w+106.2,430],[-340,-.231*h*1000/w+47.9,280],[390,-.21*h*1000/w+50.7,280],
  ]:[[0,0,160],[-220,179,380],[330,123,520],[90,-269,345],[-200,-368,205],[450,-325,235]];
- return sourceLocations.map((loc,i)=>({...loc,image:i===0?loc.image:`/journey/${i===3?'library':loc.id}-balanced.webp`,ratio:1,ground:i===0?.45:.62,x:coords[i][0],y:coords[i][1],width:coords[i][2]}));
+ return sourceLocations.map((loc,i)=>({...loc,image:i===0?loc.image:loc.id==='university'?'/journey/university-story.webp':`/journey/${i===3?'library':loc.id}-balanced.webp`,alt:loc.id==='university'?'Два университета на острове с развилкой дорожек':loc.alt,ratio:1,ground:i===0?.45:.62,x:coords[i][0],y:coords[i][1],width:coords[i][2]}));
 }
 export function mapCamera(w:number,h:number){return isCompactViewport(w,h)?{x:40,y:-.272*h*1000/w-52.9,width:1000}:{x:-181.25,y:-.099*h*1562.5/w,width:1562.5};}
 export function journeyLocations(w:number,h:number):Location[]{
@@ -25,11 +26,11 @@ export function renderLocations(frame:JourneyFrame,w:number,h:number):Location[]
 }
 const cameraMix=(a:JourneyFrame['camera'],b:JourneyFrame['camera'],p:number)=>({x:lerp(a.x,b.x,p),y:lerp(a.y,b.y,p),width:lerp(a.width,b.width,p)});
 export function closeCamera(loc:Location,w:number,h:number){
- const mobile=isCompactViewport(w,h),landscape=mobile&&w>h,home=loc.id==='home';
+ const mobile=isCompactViewport(w,h),landscape=mobile&&w>h,home=loc.id==='home',university=loc.id==='university';
  // Reserve room for the title and touch navigation on short phone screens.
- const sceneScale=landscape?Math.min(.65,(h-80)/w):Math.min(1.6,Math.max(1,(h-260)/w));
- const width=loc.width/(home?(mobile?(landscape?.34:h<700?.66:.72):.42):(mobile?sceneScale:.78));
- const sx=landscape?.73:mobile?.5:home?.73:.69,sy=landscape?.64:mobile?(home&&h<620?.73:.70):home?.61:.73;
+ const sceneScale=landscape?Math.min(.65,(h-80)/w):Math.min(university?1.18:1.6,Math.max(1,(h-260)/w));
+ const width=loc.width/(home?(mobile?(landscape?.34:h<700?.66:.72):.42):(mobile?sceneScale:university?.62:.78));
+ const sx=landscape?.73:mobile?.5:home?.73:university?.66:.69,sy=landscape?.64:mobile?(home&&h<620?.73:.70):home?.61:university?.69:.73;
  return{x:loc.x-(sx-.5)*width,y:loc.y-(sy-.5)*h*width/w,width};
 }
 export function introFrame(raw:number,w:number,h:number):JourneyFrame{
@@ -82,10 +83,13 @@ export function finalCamera(w:number,h:number){
 /** Scroll requests a destination. A running hop always reaches its landing, even if scroll stops. */
 export class JourneyPlayback{
  active=0;sceneSeconds=0;overview=0;run:null|{from:number;to:number;seconds:number;start:JourneyFrame}=null;
+ universityExit:null|{seconds:number}=null;
+ universityAssetsReady:boolean;
+ constructor(universityAssetsReady=true){this.universityAssetsReady=universityAssetsReady;}
  mapActor=5;mapRun:null|{from:number;to:number;seconds:number;start:JourneyFrame}=null;
  homeReturn:null|{seconds:number;start:JourneyFrame}=null;
  last:JourneyFrame|null=null;
- isBusy(){return !!this.run||!!this.mapRun||!!this.homeReturn||(this.overview===1&&this.mapActor===5)||(this.active>0&&this.sceneSeconds<2.25)||(this.overview>0&&this.overview<1);}
+ isBusy(){return !!this.run||!!this.mapRun||!!this.homeReturn||!!this.universityExit||(this.active===2&&!this.universityAssetsReady)||(this.overview===1&&this.mapActor===5)||(this.active>0&&this.sceneSeconds<(this.active===2?UNIVERSITY_SCENE_SECONDS:2.25))||(this.overview>0&&this.overview<1);}
  update(raw:number,dt:number,w:number,h:number):JourneyFrame{
   raw=clamp(raw,0,JOURNEY_END);dt=clamp(dt,0,.08);const desired=requestedScene(raw);
   if(desired===0&&this.overview===1&&this.mapActor===0&&!this.mapRun&&!this.homeReturn&&this.last)this.homeReturn={seconds:0,start:this.last};
@@ -104,6 +108,7 @@ export class JourneyPlayback{
   }
   if(this.active===0&&desired===0){this.last=introFrame(raw,w,h);return this.last;}
   this.sceneSeconds+=dt;
+  if(this.active===2&&!this.universityAssetsReady)this.sceneSeconds=Math.min(this.sceneSeconds,.8);
   const current=this.active===0?introFrame(INTRO_END,w,h):settledFrame(this.active,this.sceneSeconds,w,h);
   const showOverview=raw>=FINAL_START&&this.active===5&&this.sceneSeconds>=2.25;
   if(this.overview===1&&!this.mapRun&&((showOverview&&this.mapActor===5)||(!showOverview&&this.mapActor===0))){
@@ -125,7 +130,14 @@ export class JourneyPlayback{
    }else if(this.mapActor===0){const home=mapLocations(w,h)[0];hero={...hero,x:home.x,y:home.y,width:home.width*64/280};}
    this.last={...current,layout:1-p,camera:cameraMix(current.camera,end,p),phase:'final',local:p,copyOpacity:p,mapLabels:p,hero};return this.last;
   }
-  if(desired!==this.active&&(this.active===0||this.sceneSeconds>=2.25)){
+  if(desired===this.active)this.universityExit=null;
+  if(this.active===2&&desired!==2&&this.sceneSeconds>=UNIVERSITY_SCENE_SECONDS){
+   this.universityExit??={seconds:0};this.universityExit.seconds+=dt;
+   const departure=clamp(this.universityExit.seconds/UNIVERSITY_EXIT_SECONDS);
+   if(departure<1){this.last={...current,universityDeparture:departure};return this.last;}
+   this.universityExit=null;
+  }
+  if(desired!==this.active&&(this.active===0||this.sceneSeconds>=(this.active===2?UNIVERSITY_SCENE_SECONDS:2.25))){
    this.run={from:this.active,to:desired,seconds:0,start:this.last?.phase==='final'?current:this.last??current};
    this.last=hopFrame(this.active,desired,0,w,h,this.run.start,raw);return this.last;
   }

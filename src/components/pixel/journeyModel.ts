@@ -21,7 +21,7 @@ export const lerp=(a:number,b:number,t:number)=>a+(b-a)*t;
 export const ease=(v:number)=>{const t=clamp(v);return t*t*(3-2*t);};
 type Camera={x:number;y:number;width:number};
 type Hero={x:number;y:number;z:number;mode:CharacterMotion;facing:Facing;sample:number|undefined;landing:number;width?:number};
-export type JourneyFrame={camera:Camera;hero:Hero;index:number;fromIndex?:number;layout?:number;returning?:boolean;phase:'intro'|'flight'|'scene'|'final';local:number;copyOpacity:number;mapLabels:number;action:number};
+export type JourneyFrame={camera:Camera;hero:Hero;index:number;fromIndex?:number;layout?:number;returning?:boolean;universityDeparture?:number;phase:'intro'|'flight'|'scene'|'final';local:number;copyOpacity:number;mapLabels:number;action:number};
 export function facingFor(dx:number,dy:number):Facing{
  if(Math.abs(dy)>Math.abs(dx)*.9)return dy<0?'back':'front';
  return dx<0?'left':'right';
