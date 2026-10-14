@@ -4,8 +4,14 @@ import HeroSprite from './HeroSprite';
 import {ScrollGestureGate} from './journeyInput';
 import NativeStation from './NativeStation';
 import {JourneyPlayback,introFrame,renderLocations,requestedScene,isCompactViewport} from './journeyPlayback';
-import {locations,sceneStart,FINAL_START,JOURNEY_END,INTRO_END,ease,lerp,clamp,type JourneyFrame} from './journeyModel';
+import {locations,sceneStart,FINAL_START,JOURNEY_END,INTRO_END,ease,lerp,clamp,type JourneyFrame,type Location} from './journeyModel';
 import './journey.css';
+
+function JourneyTitle({location}:{location:Location}){
+ const accent=location.titleAccent;
+ if(!accent||!location.title.endsWith(accent))return <>{location.title}</>;
+ return <>{location.title.slice(0,-accent.length)}<em>{accent}</em></>;
+}
 
 export default function ScrollJourney({registrationHref}:{registrationHref:string}){
  const root=useRef<HTMLElement>(null),[travel,setTravel]=useState(0),[size,setSize]=useState({w:1280,h:800}),[quiet,setQuiet]=useState(false),[ready,setReady]=useState(false),[headerOffset,setHeaderOffset]=useState(0);
@@ -72,14 +78,14 @@ export default function ScrollJourney({registrationHref}:{registrationHref:strin
  return <div className={`scroll-landing ${reduced?'journey-quiet':''}`} data-phase={frame.phase} data-location={location.id} data-travel={travel.toFixed(3)} data-locked={busy&&!reduced}>
   <div className="journey-backdrop" aria-hidden="true"/>
   <header className="journey-header" style={{transform:`translateY(${headerOffset}px)`}}><a className="journey-brand" href="#main" onClick={e=>{if(!reduced){e.preventDefault();go(0);}}} aria-label="Ventorme (Axiom) — в начало"><img src="/brand/ventorme.svg" alt="Ventorme" width={198.174} height={42.997}/><span className="journey-brand-project">(Axiom)</span></a><nav aria-label="Основная навигация"><a className="journey-header-cta" href={registrationHref}>В Ventorme <span>↗</span></a><button className="journey-motion" onClick={toggle} aria-pressed={quiet} aria-label={quiet?'Включить анимации':'Уменьшить движение'} title={quiet?'Включить анимации':'Уменьшить движение'}>{quiet?'▷':'Ⅱ'}</button></nav></header>
-  {reduced?<main id="main" className="quiet-story"><section><h1>Твой путь начинается с тебя.</h1><p>{locations[0].copy}</p><a className="journey-cta" href={registrationHref}>Пройти профтест ↗</a></section>{sceneLocations.slice(1).map(loc=><section key={loc.id}><span className="journey-eyebrow">{loc.name}</span><h2>{loc.title}</h2><p>{loc.copy}</p><img src={loc.image} alt={loc.alt} loading="lazy"/></section>)}<section id="journey-finish"><h2>Теперь твой ход.</h2><p>Пройди бесплатный мини-профтест в Ventorme.</p><a className="journey-cta" href={registrationHref}>Пройти профтест ↗</a></section></main>:
+  {reduced?<main id="main" className="quiet-story"><section><h1><JourneyTitle location={locations[0]}/></h1><p>{locations[0].copy}</p><a className="journey-cta" href={registrationHref}>Пройти профтест ↗</a></section>{sceneLocations.slice(1).map(loc=><section key={loc.id}><span className="journey-eyebrow">{loc.name}</span><h2><JourneyTitle location={loc}/></h2><p>{loc.copy}</p><img src={loc.image} alt={loc.alt} loading="lazy"/></section>)}<section id="journey-finish"><h2>Теперь <em>твой ход.</em></h2><p>Пройди бесплатный мини-профтест в Ventorme.</p><a className="journey-cta" href={registrationHref}>Пройти профтест ↗</a></section></main>:
   <main id="main" ref={root} className="scroll-journey" style={{height:`${(JOURNEY_END*.86+1)*100}svh`}}>
    <div className="journey-viewport">
     <div className="journey-copy journey-intro-copy" style={{opacity:introCopy,visibility:introCopy>.01?'visible':'hidden'}} inert={introCopy<.1}>
      <span className="journey-eyebrow">Поступление с Ventorme</span><h1>Твой путь<br/>начинается<br/> <em>с тебя.</em></h1><p>{locations[0].copy}</p><button className="journey-cta" disabled={busy} onClick={()=>go(sceneStart(1)+.36)}>Начать путь <span>↓</span></button>
     </div>
     <div className="journey-copy journey-scene-copy" style={{opacity:titleOpacity,visibility:titleOpacity>.01?'visible':'hidden'}} aria-hidden={titleOpacity<.1}>
-     <span className="journey-eyebrow">{location.name}</span><h2>{location.title}</h2><p>{location.copy}</p>
+     <span className="journey-eyebrow">{location.name}</span><h2><JourneyTitle location={location}/></h2><p>{location.copy}</p>
     </div>
     <div className="journey-world" aria-label="Пиксельный мир поступления">
      <div className="journey-plane" style={{transform:`translate(${size.w/2-frame.camera.x*k}px, ${size.h/2-frame.camera.y*k}px) scale(${k})`}}>
